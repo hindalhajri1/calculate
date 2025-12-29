@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>حاسبة تقدير الاحتياج</title>
+
+<style>
+  :root{
+    --primary:#0b3c5d;
+    --bg:#f4f6f8;
+    --card:#ffffff;
+    --muted:#e6eaee;
+    --text:#1f2a37;
+    --sub:#6b7280;
+    --radius:16px;
+  }
+
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    font-family:"Tajawal", Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding: 18px;
+  }
+
+  .container{
+    max-width: 640px;
+    margin: 0 auto;
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: 0 6px 18px rgba(0,0,0,.08);
+    overflow:hidden;
+  }
+
+  .header{
+    padding: 18px 18px 12px;
+    border-bottom:1px solid var(--muted);
+  }
+  .title{
+    margin:0;
+    font-size: 18px;
+    color: var(--primary);
+    font-weight: 800;
+  }
+  .subtitle{
+    margin:6px 0 0;
+    font-size: 13px;
+    color: var(--sub);
+    line-height:1.6;
+  }
+
+  /* Stepper */
+  .stepperWrap{
+    padding: 14px 18px 6px;
+  }
+  .stepper{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .stepItem{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    min-width:0;
+    flex: 1;
+  }
+  .dot{
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    display:grid;
+    place-items:center;
+    font-weight:800;
+    font-size: 13px;
+    border:2px solid #cfd6dd;
+    color:#8892a0;
+    background:#fff;
+    flex: 0 0 auto;
+  }
+  .label{
+    font-size: 12px;
+    font-weight:800;
+    color:#8892a0;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .line{
+    height: 3px;
+    background:#cfd6dd;
+    border-radius: 99px;
+    flex: 1;
+  }
+
+  /* Active/completed */
+  .stepItem.active .dot,
+  .stepItem.done .dot{
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+  .stepItem.active .label,
+  .stepItem.done .label{
+    color: var(--primary);
+  }
+  .stepItem.done .dot{
+    background: var(--primary);
+    color:#fff;
+  }
+  .stepItem.done + .line{
+    background: var(--primary);
+  }
+
+  /* Content */
+  .content{
+    padding: 14px 18px 18px;
+  }
+  .step-content{ display:none; }
+  .step-content.active{ display:block; }
+
+  .field{
+    margin-top: 14px;
+  }
+  label{
+    display:block;
+    font-size: 13px;
+    font-weight:800;
+    margin-bottom: 8px;
+  }
+  .hint{
+    font-size: 12px;
+    color: var(--sub);
+    margin-top: 6px;
+    line-height:1.5;
+  }
+
+  input{
+    width:100%;
+    padding: 14px 14px;
+    border-radius: 12px;
+    border: 1px solid #d6dde5;
+    outline: none;
+    font-size: 16px; /* مهم للجوال لمنع zoom في iOS */
+    background:#fff;
+  }
+  input:focus{
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(11,60,93,.12);
+  }
+
+  .buttons{
+    margin-top: 18px;
+    display:flex;
+    gap: 10px;
+  }
+  button{
+    border:none;
+    border-radius: 12px;
+    padding: 14px 12px;
+    font-size: 15px;
+    font-weight: 800;
+    cursor:pointer;
+    width: 100%;
+  }
+  .next{ background: var(--primary); color:#fff; }
+  .back{ background: #eef2f7; color: #374151; }
+  .reset{ background: #6b7280; color:#fff; }
+
+  /* Result */
+  .result{
+    background:#f0f4f8;
+    border: 1px solid #e2e8f0;
+    padding: 16px;
+    border-radius: 14px;
+  }
+  .kv{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    margin: 10px 0;
+    font-size: 14px;
+  }
+  .kv strong{ color:#111827; }
+  .kv span{ color:#111827; font-weight:800; }
+
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-weight: 900;
+    margin-top: 10px;
+    font-size: 13px;
+  }
+  .high{ background:#c0392b; color:#fff; }
+  .mid{ background:#f39c12; color:#fff; }
+  .low{ background:#27ae60; color:#fff; }
+
+  /* Mobile tweaks */
+  @media (max-width: 420px){
+    body{ padding: 12px; }
+    .header{ padding: 16px 14px 12px; }
+    .stepperWrap{ padding: 12px 14px 6px; }
+    .content{ padding: 12px 14px 16px; }
+    .dot{ width:26px; height:26px; font-size: 12px; }
+    .label{ font-size: 11px; }
+    button{ padding: 14px 10px; }
+  }
+
+  .progress-wrap {
+    margin-top: 14px;
+  }
+  
+  .progress-bar{
+    width: 100%;
+    height: 14px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .progress-fill{
+    position: absolute;
+    right: 0;        /* يبدأ من اليمين */
+    top: 0;
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    transition: width 0.6s ease, background-color 0.4s ease;
+  }
+  
+  
+  .progress-label {
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 800;
+  }
+  
+</style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 class="title">حاسبة تقدير الاحتياج</h1>
+      <p class="subtitle">أدخل بيانات الأسرة، وسيتم حساب نسبة الاحتياج وتصنيفها فورًا. العائل محسوب تلقائيًا (1).</p>
+    </div>
+
+    <div class="stepperWrap">
+      <div class="stepper" id="stepper">
+        <div class="stepItem active" data-step="0">
+          <div class="dot">1</div>
+          <div class="label">الدخل</div>
+        </div>
+        <div class="line"></div>
+        <div class="stepItem" data-step="1">
+          <div class="dot">2</div>
+          <div class="label">الأفراد</div>
+        </div>
+        <div class="line"></div>
+        <div class="stepItem" data-step="2">
+          <div class="dot">3</div>
+          <div class="label">النتيجة</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- STEP 1 -->
+      <div class="step-content active" data-content="0">
+        <div class="field">
+          <label for="income">دخل الأسرة الشهري (ريال)</label>
+          <input inputmode="numeric" pattern="[0-9]*" type="number" id="income" placeholder="مثال: 4000" />
+          <div class="hint">اكتب الدخل الشهري الإجمالي للأسرة.</div>
+        </div>
+
+        <div class="buttons">
+          <button class="next" onclick="nextStep()">التالي</button>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step-content" data-content="1">
+        <div class="field">
+            <label for="adults">عدد الأفراد فوق 18 (غير العائل)</label>
+            <input
+              type="number"
+              id="adults"
+              value="0"
+              min="0"
+              inputmode="numeric"
+              pattern="[0-9]*"
+            />
+          <div class="hint">العائل محسوب تلقائيًا ولا يحتاج إدخال.</div>
+        </div>
+
+        <div class="field">
+            <label for="children">عدد الأطفال (أقل من 18)</label>
+<input
+  type="number"
+  id="children"
+  value="0"
+  min="0"
+  inputmode="numeric"
+  pattern="[0-9]*"
+/>
+        </div>
+
+        <div class="buttons">
+          <button class="back" onclick="prevStep()">رجوع</button>
+          <button class="next" onclick="calculate()">احسب</button>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step-content" data-content="2">
+        <div id="result" class="result"></div>
+
+        <div class="buttons" style="margin-top:12px;">
+          <button class="back" onclick="goToStep(1)">تعديل البيانات</button>
+        </div>
+
+          
+        <div class="buttons">
+          <button class="reset" onclick="resetAll()">إعادة الحساب</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  let currentStep = 0;
+
+  function setStepperState(){
+    const items = document.querySelectorAll(".stepItem");
+    items.forEach((el, idx) => {
+      el.classList.remove("active","done");
+      if (idx < currentStep) el.classList.add("done");
+      if (idx === currentStep) el.classList.add("active");
+    });
+
+    // تلوين الخطوط بناء على الخطوة
+    const lines = document.querySelectorAll(".line");
+    lines.forEach((ln, idx) => {
+      ln.style.background = (idx < currentStep) ? "var(--primary)" : "#cfd6dd";
+    });
+  }
+
+  function showStepContent(){
+    document.querySelectorAll(".step-content").forEach((c, idx) => {
+      c.classList.toggle("active", idx === currentStep);
+    });
+  }
+
+  function goToStep(step){
+    currentStep = Math.max(0, Math.min(2, step));
+    setStepperState();
+    showStepContent();
+    // سكرول لطيف للأعلى في الجوال
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function nextStep(){
+    if (currentStep === 0) {
+      const incomeStr = document.getElementById("income").value.trim();
+  
+      if (incomeStr === "") {
+        alert("فضلاً أدخل دخل الأسرة (يمكن إدخال 0 إذا لا يوجد دخل).");
+        return;
+      }
+  
+      const income = Number(incomeStr);
+      if (Number.isNaN(income) || income < 0) {
+        alert("فضلاً أدخل دخل الأسرة بشكل صحيح (0 أو أكثر).");
+        return;
+      }
+    }
+    goToStep(currentStep + 1);
+  }
+  
+
+  function prevStep(){
+    goToStep(currentStep - 1);
+  }
+
+  
+
+  
+
+  function calculate(){
+    const incomeStr = document.getElementById("income").value.trim();
+    if (incomeStr === "") {
+      alert("فضلاً أدخل دخل الأسرة (يمكن إدخال 0 إذا لا يوجد دخل).");
+      goToStep(0);
+      return;
+    }
+  
+    const income = Number(incomeStr);
+    const adults = Number(document.getElementById("adults").value || 0);
+    const children = Number(document.getElementById("children").value || 0);
+  
+    if (Number.isNaN(income) || income < 0) {
+      alert("فضلاً أدخل دخل الأسرة بشكل صحيح (0 أو أكثر).");
+      goToStep(0);
+      return;
+    }
+    if (adults < 0 || children < 0) {
+      alert("فضلاً تأكد من أعداد الأفراد.");
+      return;
+    }
+  
+    const base = 6000;
+    const natural =
+      (1 * base) +
+      (adults * 0.5 * base) +
+      (children * 0.3 * base);
+  
+    const ratioRaw = Math.round((income / natural) * 100);
+    const ratioDisplay = Math.min(ratioRaw, 100);
+  
+    let color = "";
+    let category = "";
+    
+    // التصنيف يعتمد على القيمة الحقيقية
+    if (ratioRaw <= 30) {
+      color = "#c0392b";        // أكثر احتياج
+      category = "أكثر احتياجًا";
+    } else if (ratioRaw <= 60) {
+      color = "#f39c12";        // متوسط
+      category = "متوسط الاحتياج";
+    } else {
+      color = "#27ae60";        // أقل احتياج
+      category = "أقل احتياجًا";
+    }
+  
+    document.getElementById("result").innerHTML = `
+      <div class="kv">
+        <strong>نسبة الاحتياج</strong>
+        <span>${ratioDisplay}%</span>
+      </div>
+  
+      <div style="margin-top:10px;">
+        <span class="badge" style="background:${color}; color:#fff;">
+          ${category}
+        </span>
+      </div>
+  
+      <div class="progress-wrap">
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:${ratioDisplay}%; background:${color};"></div>
+        </div>
+      </div>
+    `;
+  
+    goToStep(2);
+  }
+  
+  
+  
+  
+
+  function resetAll(){
+    document.getElementById("income").value = "";
+    document.getElementById("adults").value = "0";
+    document.getElementById("children").value = "0";
+    goToStep(0);
+  }
+  
+
+  // init
+  setStepperState();
+</script>
+
+</body>
+</html>
