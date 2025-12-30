@@ -172,8 +172,10 @@
       </div>
 
       <div class="actions">
+     
         <button class="btnGhost" type="button" onclick="resetForm()">مسح</button>
-        <button class="primary" onclick="submitForm()">إرسال</button>
+<button id="submitBtn" class="btnPrimary" type="button" onclick="submitForm()">إرسال</button>
+
       </div>
 
       <div id="okMsg" class="msg ok">✅ تم تسجيل طلبك بنجاح</div>
@@ -191,12 +193,14 @@
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw79t8X8g5M3nl-hvra3VS7-9Wy-DERczqWyYipuqhHvufMzK4D-eZciRx7tkl1-jyN/exec"; // <-- حطي رابطك /exec
 
   function showMsg(type, text=""){
-    document.getElementById("okMsg").style.display = (type==="ok") ? "block" : "none";
+    const ok = document.getElementById("okMsg");
     const err = document.getElementById("errMsg");
+  
+    ok.style.display  = (type==="ok")  ? "block" : "none";
     err.style.display = (type==="err") ? "block" : "none";
     if(type==="err") err.textContent = text;
   }
-
+  
   function resetForm(){
     ["name","mobile","city","count"].forEach(id=>{
       const el=document.getElementById(id);
@@ -207,19 +211,21 @@
     document.getElementById("confirmLink").style.display="none";
   }
 
-
   async function submitForm(){
-    const btn = document.querySelector(".primary");
+    const btn = document.getElementById("submitBtn");
     btn.disabled = true;
     btn.textContent = "جارٍ الإرسال...";
   
+    showMsg("none");
+    document.getElementById("confirmLink").style.display = "none";
+  
     const name   = document.getElementById("name").value.trim();
     const mobile = document.getElementById("mobile").value.trim();
-    const city   = document.getElementById("city").value.trim();
+    const city   = document.getElementById("city").value;   // ما يحتاج trim
     const count  = Number(document.getElementById("count").value || 0);
   
     if(!name || !mobile || !city || !count){
-      alert("فضلاً اكملي جميع الحقول");
+      showMsg("err","فضلاً اكملي جميع الحقول");
       btn.disabled = false;
       btn.textContent = "إرسال";
       return;
@@ -235,14 +241,17 @@
       const data = await res.json();
   
       if(!data.ok){
-        alert("خطأ: " + data.error);
+        showMsg("err", "خطأ: " + data.error);
       } else {
-        alert("✅ تم تسجيل الطلب بنجاح");
-        console.log("Confirm URL:", data.confirmUrl);
+        showMsg("ok");
+        // لو تبين تعرضين رابط التأكيد للاختبار:
+        const c = document.getElementById("confirmLink");
+        c.value = data.confirmUrl || "";
+        c.style.display = data.confirmUrl ? "block" : "none";
       }
   
     } catch(e){
-      alert("تعذر الاتصال بالسكربت");
+      showMsg("err","تعذر الاتصال بالسكربت");
       console.error(e);
     }
   
