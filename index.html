@@ -166,14 +166,14 @@
           </select>
         </div>
         <div>
-          <label for="count">عدد الأذانية</label>
+          <label for="count">عدد الازانيا</label>
           <input id="count" type="number" min="1" value="1" inputmode="numeric" />
         </div>
       </div>
 
       <div class="actions">
         <button class="btnGhost" type="button" onclick="resetForm()">مسح</button>
-        <button class="btnPrimary" type="button" onclick="submitForm()">إرسال</button>
+        <button class="primary" onclick="submitForm()">إرسال</button>
       </div>
 
       <div id="okMsg" class="msg ok">✅ تم تسجيل طلبك بنجاح</div>
@@ -207,40 +207,50 @@
     document.getElementById("confirmLink").style.display="none";
   }
 
-  async function submitForm(){
-    const name = document.getElementById("name").value.trim();
-    const mobile = document.getElementById("mobile").value.trim();
-    const city = document.getElementById("city").value.trim();
-    const count = Number(document.getElementById("count").value || 0);
 
+  async function submitForm(){
+    const btn = document.querySelector(".primary");
+    btn.disabled = true;
+    btn.textContent = "جارٍ الإرسال...";
+  
+    const name   = document.getElementById("name").value.trim();
+    const mobile = document.getElementById("mobile").value.trim();
+    const city   = document.getElementById("city").value.trim();
+    const count  = Number(document.getElementById("count").value || 0);
+  
     if(!name || !mobile || !city || !count){
-      showMsg("err","فضلاً اكملي الحقول الأربعة.");
+      alert("فضلاً اكملي جميع الحقول");
+      btn.disabled = false;
+      btn.textContent = "إرسال";
       return;
     }
-
-    try{
+  
+    try {
       const res = await fetch(SCRIPT_URL, {
         method: "POST",
-        headers: {"Content-Type":"text/plain;charset=utf-8"},
+        headers: { "Content-Type":"text/plain;charset=utf-8" },
         body: JSON.stringify({ name, mobile, city, count })
       });
-
+  
       const data = await res.json();
+  
       if(!data.ok){
-        showMsg("err", "صار خطأ: " + (data.error || "غير معروف"));
-        return;
+        alert("خطأ: " + data.error);
+      } else {
+        alert("✅ تم تسجيل الطلب بنجاح");
+        console.log("Confirm URL:", data.confirmUrl);
       }
-
-      showMsg("ok");
-      // لو تبين يطلع لك رابط التأكيد (للاختبار)
-      const box = document.getElementById("confirmLink");
-      box.value = data.confirmUrl || "";
-      box.style.display = data.confirmUrl ? "block" : "none";
-
-    }catch(e){
-      showMsg("err","تعذر الاتصال. تأكدي من رابط السكربت والصلاحيات.");
+  
+    } catch(e){
+      alert("تعذر الاتصال بالسكربت");
+      console.error(e);
     }
+  
+    btn.disabled = false;
+    btn.textContent = "إرسال";
   }
+  
+  
 </script>
 </body>
 </html>
