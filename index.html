@@ -11,146 +11,44 @@
 
   <style>
     :root{
-      --bg:#f3f4f6;
-      --card:#ffffff;
-      --text:#111827;
-      --sub:#6b7280;
-      --muted:#e5e7eb;
-      --primary:#111827; /* أسود */
-      --shadow:0 16px 30px rgba(0,0,0,.10);
-      --radius:18px;
+      --bg:#f3f4f6; --card:#fff; --text:#111827; --sub:#6b7280; --muted:#e5e7eb;
+      --primary:#111827; --shadow:0 16px 30px rgba(0,0,0,.10); --radius:18px;
     }
     *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:"Tajawal", system-ui, -apple-system, Arial, sans-serif;
-      background:var(--bg);
-      color:var(--text);
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:16px;
-    }
-    .card{
-      width:100%;
-      max-width:520px;
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      border:1px solid rgba(17,24,39,.08);
-      overflow:hidden;
-    }
-    .top{
-      padding:18px 18px 10px;
-      border-bottom:1px solid var(--muted);
-      text-align:center;
-      background:linear-gradient(#fff, #fafafa);
-    }
-    .title{
-      margin:0;
-      font-size:18px;
-      font-weight:900;
-      color:var(--primary);
-    }
-    .subtitle{
-      margin:8px 0 0;
-      font-size:13px;
-      color:var(--sub);
-      line-height:1.7;
-    }
-
-    .body{ padding:16px 18px 18px; }
-
-    label{
-      display:block;
-      margin:14px 0 8px;
-      font-size:13px;
-      font-weight:900;
-    }
-    input, select{
-      width:100%;
-      padding:14px 14px;
-      border-radius:12px;
-      border:1px solid #d1d5db;
-      outline:none;
-      font-size:16px;
-      font-family:inherit;
-      background:#fff;
-    }
-    input:focus, select:focus{
-      border-color:#111827;
-      box-shadow:0 0 0 3px rgba(17,24,39,.10);
-    }
-
-    .row2{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-    }
-    @media (max-width: 420px){ .row2{ grid-template-columns:1fr; } }
-
-    .actions{
-      margin-top:16px;
-      display:flex;
-      gap:10px;
-    }
-    button{
-      width:100%;
-      border:none;
-      border-radius:12px;
-      padding:14px 12px;
-      font-size:15px;
-      font-weight:900;
-      cursor:pointer;
-      font-family:inherit;
-    }
-    .btnPrimary{ background:var(--primary); color:#fff; }
-    .btnGhost{ background:#f3f4f6; color:#111827; border:1px solid #e5e7eb; }
-
-    .msg{
-      display:none;
-      margin-top:14px;
-      padding:12px;
-      border-radius:12px;
-      font-weight:800;
-      text-align:center;
-    }
-    .ok{ background:#ecfdf5; border:1px solid #bbf7d0; color:#065f46; }
-    .err{ background:#fef2f2; border:1px solid #fecaca; color:#991b1b; }
-
-    .small{
-      margin-top:8px;
-      font-size:12px;
-      color:var(--sub);
-      text-align:center;
-      line-height:1.6;
-    }
-    .confirmLink{
-      margin-top:10px;
-      width:100%;
-      padding:12px;
-      border-radius:12px;
-      border:1px dashed #d1d5db;
-      background:#fafafa;
-      font-size:12px;
-      direction:ltr;
-      text-align:left;
-      display:none;
-    }
+    body{margin:0;font-family:"Tajawal",system-ui,-apple-system,Arial,sans-serif;background:var(--bg);color:var(--text);
+      min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;}
+    .card{width:100%;max-width:520px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+      border:1px solid rgba(17,24,39,.08);overflow:hidden;}
+    .top{padding:18px 18px 10px;border-bottom:1px solid var(--muted);text-align:center;background:linear-gradient(#fff,#fafafa);}
+    .title{margin:0;font-size:18px;font-weight:900;color:var(--primary);}
+    .subtitle{margin:8px 0 0;font-size:13px;color:var(--sub);line-height:1.7;}
+    .body{padding:16px 18px 18px;}
+    label{display:block;margin:14px 0 8px;font-size:13px;font-weight:900;}
+    input,select{width:100%;padding:14px;border-radius:12px;border:1px solid #d1d5db;outline:none;font-size:16px;font-family:inherit;background:#fff;}
+    input:focus,select:focus{border-color:#111827;box-shadow:0 0 0 3px rgba(17,24,39,.10);}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    @media (max-width:420px){.row2{grid-template-columns:1fr;}}
+    .actions{margin-top:16px;display:flex;gap:10px;}
+    button{width:100%;border:none;border-radius:12px;padding:14px 12px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;}
+    .btnPrimary{background:var(--primary);color:#fff;}
+    .btnGhost{background:#f3f4f6;color:#111827;border:1px solid #e5e7eb;}
+    .msg{display:none;margin-top:14px;padding:12px;border-radius:12px;font-weight:800;text-align:center;}
+    .ok{background:#ecfdf5;border:1px solid #bbf7d0;color:#065f46;}
+    .err{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;}
+    .small{margin-top:8px;font-size:12px;color:var(--sub);text-align:center;line-height:1.6;}
   </style>
 </head>
 
 <body>
   <div class="card">
     <div class="top">
-      <h1 class="title">طلب الأذانية</h1>
+      <h1 class="title">طلب الازانيا</h1>
       <p class="subtitle">أدخل بياناتك وسيتم تسجيل الطلب.</p>
     </div>
 
     <div class="body">
       <label for="name">الاسم</label>
-      <input id="name" placeholder="مثال: هند الهاجري" />
+      <input id="name" placeholder="ادخل اسمك" />
 
       <label for="mobile">رقم الجوال</label>
       <input id="mobile" inputmode="numeric" placeholder="05xxxxxxxx" />
@@ -172,94 +70,94 @@
       </div>
 
       <div class="actions">
-     
         <button class="btnGhost" type="button" onclick="resetForm()">مسح</button>
-<button id="submitBtn" class="btnPrimary" type="button" onclick="submitForm()">إرسال</button>
-
+        <button id="sendBtn" class="btnPrimary" type="button" onclick="submitForm()">إرسال</button>
       </div>
 
       <div id="okMsg" class="msg ok">✅ تم تسجيل طلبك بنجاح</div>
       <div id="errMsg" class="msg err"></div>
 
-      <input id="confirmLink" class="confirmLink" readonly />
-
-      <div class="small">
-        عند تجهيز الاستلام سيتم إرسال رابط “تأكيد الاستلام” عبر الواتساب.
-      </div>
+      <div class="small">عند تجهيز الاستلام سيتم إرسال رابط “تأكيد الاستلام” عبر الواتساب.</div>
     </div>
   </div>
 
-
-
-  
 <script>
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby479hgbpLaCxk8mluOdKYSMOuETlfTxTBWNlX6e3iv18dyburXZPyxCxIjh4aPdRmL/exec"; // <-- حطي رابطك /exec
+  // ✅ حطي رابط /exec بعد آخر Deploy (New Version)
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyPK1JohT0Xwy5JFKWDmPQ2AsRAZzpnggbe1jgz_pyHBZWaJNGk8E6piU40HDkOWrbi/exec";
 
-  function showMsg(type, text=""){
-    const ok = document.getElementById("okMsg");
+  function show(type, text=""){
+    document.getElementById("okMsg").style.display  = (type==="ok")  ? "block" : "none";
     const err = document.getElementById("errMsg");
-  
-    ok.style.display  = (type==="ok")  ? "block" : "none";
     err.style.display = (type==="err") ? "block" : "none";
     if(type==="err") err.textContent = text;
   }
-  
+
   function resetForm(){
-    ["name","mobile","city","count"].forEach(id=>{
-      const el=document.getElementById(id);
-      if(id==="count") el.value="1";
-      else el.value="";
-    });
-    showMsg("none");
-    document.getElementById("confirmLink").style.display="none";
+    document.getElementById("name").value = "";
+    document.getElementById("mobile").value = "";
+    document.getElementById("city").value = "";
+    document.getElementById("count").value = "1";
+    show("none");
   }
 
-
-  async function submitForm(){
-    const btn = document.querySelector(".btnPrimary");
-    btn.disabled = true;
-    btn.textContent = "جارٍ الإرسال...";
-  
-    const name   = document.getElementById("name").value.trim();
-    const mobile = document.getElementById("mobile").value.trim();
-    const city   = document.getElementById("city").value;
-    const count  = document.getElementById("count").value;
-  
-    if(!name || !mobile || !city || !count){
-      alert("فضلاً اكملي جميع الحقول");
-      btn.disabled = false;
-      btn.textContent = "إرسال";
-      return;
-    }
-  
-    const url =
-      SCRIPT_URL +
-      `?name=${encodeURIComponent(name)}` +
-      `&mobile=${encodeURIComponent(mobile)}` +
-      `&city=${encodeURIComponent(city)}` +
-      `&count=${encodeURIComponent(count)}`;
-  
-    try{
-      // مهم: no-cors يعني ما نقدر نقرأ الرد، لكن الإرسال يوصل
-      await fetch(url, { method: "GET", mode: "no-cors" });
-  
-      // اعتبريه نجاح (إذا كان فيه مشكلة صلاحيات في السكربت لن يضيف بالشيت)
-      document.getElementById("okMsg").style.display = "block";
-      document.getElementById("errMsg").style.display = "none";
-  
-    }catch(e){
-      document.getElementById("errMsg").textContent = "تعذر الاتصال بالسكربت";
-      document.getElementById("errMsg").style.display = "block";
-      document.getElementById("okMsg").style.display = "none";
-    }
-  
+  // JSONP callback (لا تغيّرين الاسم)
+  window.handleSubmit = function(res){
+    const btn = document.getElementById("sendBtn");
     btn.disabled = false;
     btn.textContent = "إرسال";
+
+    if(!res || !res.ok){
+      show("err", (res && res.error) ? res.error : "تعذر تسجيل الطلب");
+      return;
+    }
+
+    show("ok");
+    // لو تبين تطلعين رابط التأكيد هنا (اختياري):
+    // console.log("confirmUrl:", res.confirmUrl);
+  };
+
+  function submitForm(){
+    const btn = document.getElementById("sendBtn");
+    btn.disabled = true;
+    btn.textContent = "جارٍ الإرسال...";
+
+    const name = document.getElementById("name").value.trim();
+    const mobile = document.getElementById("mobile").value.trim();
+    const city = document.getElementById("city").value.trim();
+    const count = Number(document.getElementById("count").value || 0);
+
+    if(!name || !mobile || !city || !count){
+      btn.disabled = false;
+      btn.textContent = "إرسال";
+      show("err", "فضلاً اكملي جميع الحقول");
+      return;
+    }
+
+    show("none");
+
+    // JSONP: نضيف <script> ونستقبل الرد في handleSubmit
+    const url =
+      SCRIPT_URL +
+      "?action=submit" +
+      "&callback=handleSubmit" +
+      "&name=" + encodeURIComponent(name) +
+      "&mobile=" + encodeURIComponent(mobile) +
+      "&city=" + encodeURIComponent(city) +
+      "&count=" + encodeURIComponent(count) +
+      "&_=" + Date.now(); // لمنع الكاش
+
+    const s = document.createElement("script");
+    s.src = url;
+    s.onerror = () => {
+      btn.disabled = false;
+      btn.textContent = "إرسال";
+      show("err", "تعذر الاتصال بالسكربت");
+    };
+    document.body.appendChild(s);
+
+    // تنظيف السكربت بعد التحميل
+    s.onload = () => setTimeout(()=> s.remove(), 1000);
   }
-  
-  
-  
-  
 </script>
 </body>
 </html>
