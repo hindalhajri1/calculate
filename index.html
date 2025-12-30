@@ -5,22 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>طلب الأذانية</title>
 
-  <!-- Tajawal -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;800;900&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --primary:#1f2937;  /* أسود أنيق */
-      --bg:#f4f6f8;
+      --bg:#f3f4f6;
       --card:#ffffff;
-      --muted:#e6eaee;
-      --text:#0f172a;
-      --sub:#64748b;
+      --text:#111827;
+      --sub:#6b7280;
+      --muted:#e5e7eb;
+      --primary:#111827; /* أسود */
+      --shadow:0 16px 30px rgba(0,0,0,.10);
       --radius:18px;
-      --shadow:0 14px 30px rgba(0,0,0,.10);
-      --border:1px solid rgba(15, 23, 42, .08);
     }
     *{box-sizing:border-box}
     body{
@@ -34,41 +32,20 @@
       justify-content:center;
       padding:16px;
     }
-    .container{
+    .card{
       width:100%;
-      max-width:420px;
+      max-width:520px;
       background:var(--card);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
-      border:var(--border);
+      border:1px solid rgba(17,24,39,.08);
       overflow:hidden;
     }
-    .brand{
-      padding:16px 18px 12px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
+    .top{
+      padding:18px 18px 10px;
       border-bottom:1px solid var(--muted);
-      background:linear-gradient(to bottom, #ffffff, #fbfdff);
-    }
-    .brand img{
-      height:54px; /* الشعار */
-      width:auto;
-      object-fit:contain;
-      display:block;
-    }
-    .brandTitle{
-      margin:0;
-      font-weight:900;
-      color:var(--primary);
-      font-size:14px;
       text-align:center;
-      line-height:1.3;
-    }
-    .header{
-      padding:14px 18px 8px;
-      text-align:center;
+      background:linear-gradient(#fff, #fafafa);
     }
     .title{
       margin:0;
@@ -83,151 +60,187 @@
       line-height:1.7;
     }
 
-    .content{ padding:14px 18px 18px; }
+    .body{ padding:16px 18px 18px; }
 
     label{
       display:block;
+      margin:14px 0 8px;
       font-size:13px;
       font-weight:900;
-      margin:12px 0 8px;
     }
     input, select{
       width:100%;
       padding:14px 14px;
       border-radius:12px;
-      border:1px solid #d6dde5;
+      border:1px solid #d1d5db;
       outline:none;
       font-size:16px;
-      background:#fff;
       font-family:inherit;
+      background:#fff;
     }
     input:focus, select:focus{
-      border-color:var(--primary);
-      box-shadow:0 0 0 3px rgba(31,41,55,.12);
+      border-color:#111827;
+      box-shadow:0 0 0 3px rgba(17,24,39,.10);
     }
 
-    .buttons{
+    .row2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 420px){ .row2{ grid-template-columns:1fr; } }
+
+    .actions{
       margin-top:16px;
       display:flex;
       gap:10px;
     }
     button{
+      width:100%;
       border:none;
       border-radius:12px;
       padding:14px 12px;
       font-size:15px;
       font-weight:900;
       cursor:pointer;
-      width:100%;
       font-family:inherit;
     }
-    .primary{ background:var(--primary); color:#fff; }
-    .secondary{ background:#eef2f7; color:#0f172a; }
+    .btnPrimary{ background:var(--primary); color:#fff; }
+    .btnGhost{ background:#f3f4f6; color:#111827; border:1px solid #e5e7eb; }
 
-    .success{
+    .msg{
       display:none;
-      margin-top:12px;
-      background:#ecfdf5;
-      border:1px solid #bbf7d0;
-      color:#065f46;
+      margin-top:14px;
       padding:12px;
       border-radius:12px;
-      font-weight:900;
+      font-weight:800;
       text-align:center;
-      line-height:1.7;
+    }
+    .ok{ background:#ecfdf5; border:1px solid #bbf7d0; color:#065f46; }
+    .err{ background:#fef2f2; border:1px solid #fecaca; color:#991b1b; }
+
+    .small{
+      margin-top:8px;
+      font-size:12px;
+      color:var(--sub);
+      text-align:center;
+      line-height:1.6;
+    }
+    .confirmLink{
+      margin-top:10px;
+      width:100%;
+      padding:12px;
+      border-radius:12px;
+      border:1px dashed #d1d5db;
+      background:#fafafa;
+      font-size:12px;
+      direction:ltr;
+      text-align:left;
+      display:none;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-
-    <div class="brand">
-    <!-- <img src="logo.png" alt="الشعار">-->
-      <p class="brandTitle">نموذج طلب لازانيا</p>
+  <div class="card">
+    <div class="top">
+      <h1 class="title">طلب الأذانية</h1>
+      <p class="subtitle">أدخل بياناتك وسيتم تسجيل الطلب.</p>
     </div>
 
-    <div class="header">
-      <h1 class="title">طلب لازانيا</h1>
-      <p class="subtitle">أدخل البيانات المطلوبة وسيتم تسجيل طلبك.</p>
-    </div>
-
-    <div class="content">
+    <div class="body">
       <label for="name">الاسم</label>
-      <input id="name" placeholder="اكتب اسمك الثلاثي">
+      <input id="name" placeholder="مثال: هند الهاجري" />
 
       <label for="mobile">رقم الجوال</label>
-      <input id="mobile" inputmode="numeric" placeholder="05xxxxxxxx">
+      <input id="mobile" inputmode="numeric" placeholder="05xxxxxxxx" />
 
-      <label for="city">المدينة</label>
-      <select id="city">
-        <option value="">اختر المدينة</option>
-        <option value="الدمام">الدمام</option>
-        <option value="الخبر">الخبر</option>
-        <option value="الظهران">الظهران</option>
-      </select>
-
-      <label for="count">عدد الازانيا</label>
-      <input id="count" type="number" min="1" value="1" inputmode="numeric">
-
-      <div class="buttons">
-        <button class="primary" id="submitBtn" onclick="submitForm()">إرسال الطلب</button>
-        <button class="secondary" onclick="resetForm()">مسح</button>
+      <div class="row2">
+        <div>
+          <label for="city">المدينة</label>
+          <select id="city">
+            <option value="">اختر المدينة</option>
+            <option value="الدمام">الدمام</option>
+            <option value="الخبر">الخبر</option>
+            <option value="الظهران">الظهران</option>
+          </select>
+        </div>
+        <div>
+          <label for="count">عدد الأذانية</label>
+          <input id="count" type="number" min="1" value="1" inputmode="numeric" />
+        </div>
       </div>
 
-      <div class="success" id="successMsg">✅ تم تسجيل طلبك بنجاح</div>
+      <div class="actions">
+        <button class="btnGhost" type="button" onclick="resetForm()">مسح</button>
+        <button class="btnPrimary" type="button" onclick="submitForm()">إرسال</button>
+      </div>
+
+      <div id="okMsg" class="msg ok">✅ تم تسجيل طلبك بنجاح</div>
+      <div id="errMsg" class="msg err"></div>
+
+      <input id="confirmLink" class="confirmLink" readonly />
+
+      <div class="small">
+        عند تجهيز الاستلام سيتم إرسال رابط “تأكيد الاستلام” عبر الواتساب.
+      </div>
     </div>
   </div>
 
 <script>
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNrr7-o1y6Ab3OlWnRV4_piMYmxmmAknuC3iPMfFpi7Xs7V6qFzReTEdST5EI2vl0z/exec";
-    const payload = {
-      name: v("name"),
-      mobile: v("mobile"),
-      city: v("city"),
-      count: Number(v("count") || 0)
-    };
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNrr7-o1y6Ab3OlWnRV4_piMYmxmmAknuC3iPMfFpi7Xs7V6qFzReTEdST5EI2vl0z/exec"; // <-- حطي رابطك /exec
 
-    if(!payload.name || !payload.mobile || !payload.city || !payload.count || payload.count < 1){
-      alert("فضلاً أكمل البيانات: الاسم/الجوال/المدينة/عدد الأذانية");
+  function showMsg(type, text=""){
+    document.getElementById("okMsg").style.display = (type==="ok") ? "block" : "none";
+    const err = document.getElementById("errMsg");
+    err.style.display = (type==="err") ? "block" : "none";
+    if(type==="err") err.textContent = text;
+  }
+
+  function resetForm(){
+    ["name","mobile","city","count"].forEach(id=>{
+      const el=document.getElementById(id);
+      if(id==="count") el.value="1";
+      else el.value="";
+    });
+    showMsg("none");
+    document.getElementById("confirmLink").style.display="none";
+  }
+
+  async function submitForm(){
+    const name = document.getElementById("name").value.trim();
+    const mobile = document.getElementById("mobile").value.trim();
+    const city = document.getElementById("city").value.trim();
+    const count = Number(document.getElementById("count").value || 0);
+
+    if(!name || !mobile || !city || !count){
+      showMsg("err","فضلاً اكملي الحقول الأربعة.");
       return;
     }
-
-    const btn = document.getElementById("submitBtn");
-    btn.disabled = true;
-    btn.textContent = "جارٍ الإرسال...";
 
     try{
       const res = await fetch(SCRIPT_URL, {
         method: "POST",
         headers: {"Content-Type":"text/plain;charset=utf-8"},
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ name, mobile, city, count })
       });
-      const data = await res.json();
 
+      const data = await res.json();
       if(!data.ok){
-        alert("صار خطأ: " + (data.error || "غير معروف"));
+        showMsg("err", "صار خطأ: " + (data.error || "غير معروف"));
         return;
       }
 
-      document.getElementById("successMsg").style.display = "block";
+      showMsg("ok");
+      // لو تبين يطلع لك رابط التأكيد (للاختبار)
+      const box = document.getElementById("confirmLink");
+      box.value = data.confirmUrl || "";
+      box.style.display = data.confirmUrl ? "block" : "none";
+
     }catch(e){
-      alert("تعذر الاتصال. تأكدي من رابط السكربت أو الشبكة.");
-    }finally{
-      btn.disabled = false;
-      btn.textContent = "إرسال الطلب";
+      showMsg("err","تعذر الاتصال. تأكدي من رابط السكربت والصلاحيات.");
     }
   }
-
-  function resetForm(){
-    ["name","mobile","city","count"].forEach(id=>{
-      const el = document.getElementById(id);
-      if(id === "count") el.value = "1";
-      else el.value = "";
-    });
-    document.getElementById("successMsg").style.display = "none";
-  }
 </script>
-
 </body>
 </html>
