@@ -43,9 +43,10 @@
 
   <script>
     async function loadDashboard() {
-      const res = await fetch("/dashboard/api/stats", {
+      fetch("/api/stats", {
         credentials: "include"
       });
+      
 
       if (!res.ok) {
         document.body.innerHTML = "غير مصرح بالدخول";
