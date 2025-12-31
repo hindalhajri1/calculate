@@ -1,52 +1,86 @@
-<div>
-    <h2>Dashboard</h2>
-    <div id="cards"></div>
-  </div>
- 
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard</title>
+  <style>
+    body { font-family: Arial; direction: rtl; padding: 20px; }
+    .cards { display: flex; gap: 20px; }
+    .card {
+      padding: 20px;
+      background: #f4f6f8;
+      border-radius: 10px;
+      min-width: 150px;
+      text-align: center;
+      font-size: 18px;
+    }
+    table { width: 100%; margin-top: 30px; border-collapse: collapse; }
+    th, td { padding: 10px; border-bottom: 1px solid #ddd; }
+  </style>
+</head>
+
+<body>
+  <h1>لوحة التحكم</h1>
+
+  <div class="cards" id="cards"></div>
+
+  <h2>حسب المدينة</h2>
+  <div id="byCity"></div>
+
+  <h2>آخر الطلبات</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>الاسم</th>
+        <th>المدينة</th>
+        <th>الحالة</th>
+        <th>التاريخ</th>
+      </tr>
+    </thead>
+    <tbody id="latest"></tbody>
+  </table>
+
   <script>
     async function loadDashboard() {
       const res = await fetch("/dashboard/api/stats", {
-        method: "GET",
-        credentials: "include" // مهم عشان يرسل كوكي Access
+        credentials: "include"
       });
-  
+
       if (!res.ok) {
         document.body.innerHTML = "غير مصرح بالدخول";
         return;
       }
-  
+
       const data = await res.json();
-      console.log("STATS:", data);
-  
-      // هنا لاحقًا نربطها بعناصر الصفحة ونحط الأرقام مكانها
+
+      // الكروت
+      document.getElementById("cards").innerHTML = `
+        <div class="card">إجمالي<br><b>${data.cards.total}</b></div>
+        <div class="card">مؤكدة<br><b>${data.cards.confirmed}</b></div>
+        <div class="card">غير مؤكدة<br><b>${data.cards.pending}</b></div>
+      `;
+
+      // حسب المدينة
+      document.getElementById("byCity").innerHTML =
+        data.byCity.map(c =>
+          `<p>${c.city}: ${c.confirmed}/${c.total}</p>`
+        ).join("");
+
+      // آخر الطلبات
+      document.getElementById("latest").innerHTML =
+        data.latest.map(r =>
+          `<tr>
+            <td>${r.id}</td>
+            <td>${r.name}</td>
+            <td>${r.city}</td>
+            <td>${r.status}</td>
+            <td>${new Date(r.created_at).toLocaleString()}</td>
+          </tr>`
+        ).join("");
     }
-  
+
     loadDashboard();
   </script>
-  
-  
-  <script>
-  const SCRIPT_URL = "PUT_YOUR_WEB_APP_URL_HERE";
-  
-  function renderStats(s){
-    document.getElementById("cards").innerHTML = `
-      <p>المسجلين: <b>${s.total}</b></p>
-      <p>تم الاستلام: <b>${s.received}</b></p>
-      <p>المتبقي: <b>${s.remaining}</b></p>
-      <hr>
-      <p>الدمام: ${s.byCity["الدمام"].received}/${s.byCity["الدمام"].total}</p>
-      <p>الخبر: ${s.byCity["الخبر"].received}/${s.byCity["الخبر"].total}</p>
-      <p>الظهران: ${s.byCity["الظهران"].received}/${s.byCity["الظهران"].total}</p>
-    `;
-  }
-  
-  (function load(){
-    const cb = "cb_" + Date.now();
-    window[cb] = (data)=>{ renderStats(data); delete window[cb]; };
-  
-    const script = document.createElement("script");
-    script.src = SCRIPT_URL + `?action=stats&callback=${cb}`;
-    document.body.appendChild(script);
-  })();
-  </script>
-  
+</body>
+</html>
