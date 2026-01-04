@@ -205,6 +205,48 @@
         font-weight:900;
       }
     }
+
+
+    .city-card{
+      grid-column: span 3;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:14px;
+      box-shadow: 0 6px 16px rgba(17,24,39,.05);
+      text-align:center;
+    }
+    
+    .city-name{
+      font-weight:900;
+      margin-bottom:10px;
+    }
+    
+    .circle{
+      width:90px;
+      height:90px;
+      border-radius:50%;
+      margin:0 auto 10px;
+      display:grid;
+      place-items:center;
+      font-weight:900;
+      font-size:14px;
+      color:#111827;
+      background:
+        conic-gradient(
+          var(--ok) calc(var(--p) * 1%),
+          #e5e7eb 0
+        );
+    }
+    
+    .city-meta{
+      font-size:12px;
+      color:var(--muted);
+      display:flex;
+      justify-content:space-between;
+      margin-top:6px;
+    }
+    
   </style>
 </head>
 
@@ -280,8 +322,8 @@
       <h2>حسب المدينة</h2>
       <div class="sub" id="cityHint">—</div>
     </div>
-    <div class="card">
-      <table>
+    <div class="grid" id="citiesGrid">
+            <table>
         <thead>
           <tr>
             <th>المدينة</th>
@@ -320,11 +362,22 @@
 <script>
   // ✅ عدّليها لاحقاً بحسب طريقة تحديد اسم العميل
   const CLIENT_NAME = "العميل";
-
+  function num(n){
+    return Number(n || 0).toLocaleString("en-US");
+  }
+  
   function fmtDate(iso){
     try{
       const d = new Date(iso);
-      return d.toLocaleString("ar-SA", { dateStyle:"medium", timeStyle:"short" });
+      return d.toLocaleString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      });
+      
     }catch(e){ return iso || "-" }
   }
 
@@ -407,20 +460,33 @@
     document.getElementById("citiesCount").textContent = (data?.byCity?.length ?? 0);
     document.getElementById("cityHint").textContent = `عدد المدن: ${(data?.byCity?.length ?? 0)}`;
     document.getElementById("canceled").textContent = data?.cards?.canceled ?? 0;
+    document.getElementById("total").textContent = num(data.cards.total);
+
 
 
     // By City table
-    const byCityBody = document.getElementById("byCityBody");
-    byCityBody.innerHTML = (data.byCity || []).map(r => `
-      <tr>
-        <td data-label="المدينة">${r.city || "-"}</td>
-        <td data-label="الإجمالي">${r.total ?? 0}</td>
-        <td data-label="مؤكدة">${r.confirmed ?? 0}</td>
-        <td data-label="ملغية">${r.canceled ?? 0}</td>
-        <td data-label="معلّقة">${r.pending ?? 0}</td>
+    const citiesGrid = document.getElementById("citiesGrid");
+citiesGrid.innerHTML = (data.byCity || []).map(c => {
+  const total = c.total || 0;
+  const confirmed = c.confirmed || 0;
+  const percent = total ? Math.round((confirmed / total) * 100) : 0;
 
-      </tr>
-    `).join("");
+  return `
+    <div class="city-card">
+      <div class="city-name">${c.city || "-"}</div>
+
+      <div class="circle" style="--p:${percent}">
+        ${percent}%
+      </div>
+
+      <div class="city-meta">
+        <span>Confirmed: ${confirmed}</span>
+        <span>Total: ${total}</span>
+      </div>
+    </div>
+  `;
+}).join("");
+
 
     // Latest table
     const latestBody = document.getElementById("latestBody");
