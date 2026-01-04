@@ -1,61 +1,88 @@
 export async function onRequestPost({ request, env }) {
+    const cors = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    };
+  
     try {
-      const { token, action } = await request.json();
+      const db = env.DB; // ✅ حسب كلامك binding اسمه DB
+  
+      const body = await request.json().catch(() => ({}));
+      const token = String(body.token || "").trim();
+      const action = String(body.action || "").trim().toLowerCase(); // confirm | cancel
   
       if (!token || !["confirm", "cancel"].includes(action)) {
-        return json({ error: "Bad request" }, 400);
+        return new Response(JSON.stringify({ ok: false, error: "BAD_REQUEST" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...cors, "Cache-Control": "no-store" },
+        });
       }
   
-      // 1) نجيب الطلب
-      const row = await env.DB
-        .prepare(`SELECT id, status, decision FROM requests WHERE token = ? LIMIT 1`)
+      // القيم اللي بنحفظها
+      const status = action === "confirm" ? "confirmed" : "canceled";
+      const decision = action; // نخلي decision = confirm/cancel
+  
+      // ✅ تثبيت القرار مرة واحدة فقط:
+      // الشرط: ما تم اتخاذ قرار سابق (decision/decided_at NULL)
+      let updateSql = `
+        UPDATE requests
+        SET
+          status = ?,
+          decision = ?,
+          decided_at = datetime('now')
+          ${action === "confirm" ? ", confirmed_at = datetime('now')" : ""}
+        WHERE token = ?
+          AND (decision IS NULL OR decision = '')
+          AND (decided_at IS NULL OR decided_at = '')
+      `;
+  
+      const updateRes = await db.prepare(updateSql).bind(status, decision, token).run();
+      const changes = updateRes?.meta?.changes || 0;
+  
+      // نجيب النتيجة النهائية دائمًا (سواء تم التحديث الآن أو كان سابق)
+      const row = await db
+        .prepare(`SELECT status, decision, decided_at, confirmed_at FROM requests WHERE token = ? LIMIT 1`)
         .bind(token)
         .first();
   
-      if (!row) return json({ error: "Not found" }, 404);
-  
-      // 2) إذا تم اتخاذ قرار سابقًا، لا نسمح بالتغيير
-      if (row.decision) {
-        return json({ error: "Already decided", decision: row.decision }, 409);
+      if (!row) {
+        return new Response(JSON.stringify({ ok: false, error: "NOT_FOUND" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json", ...cors, "Cache-Control": "no-store" },
+        });
       }
   
-      const now = new Date().toISOString();
-  
-      if (action === "confirm") {
-        await env.DB.prepare(`
-          UPDATE requests
-          SET status = 'Confirmed',
-              confirmed_at = ?,
-              decided_at = ?,
-              decision = 'confirmed'
-          WHERE token = ? AND decision IS NULL
-        `).bind(now, now, token).run();
-  
-        return json({ ok: true, decision: "confirmed" }, 200);
-      }
-  
-      // cancel
-      await env.DB.prepare(`
-        UPDATE requests
-        SET status = 'Cancelled',
-            decided_at = ?,
-            decision = 'cancelled'
-        WHERE token = ? AND decision IS NULL
-      `).bind(now, token).run();
-  
-      return json({ ok: true, decision: "cancelled" }, 200);
+      return new Response(
+        JSON.stringify({
+          ok: true,
+          changed: Number(changes), // 1 إذا تثبت الآن، 0 إذا كان مثبت مسبقًا
+          status: row.status,
+          decision: row.decision,
+          decided_at: row.decided_at,
+          confirmed_at: row.confirmed_at,
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...cors, "Cache-Control": "no-store" },
+        }
+      );
     } catch (e) {
-      return json({ error: String(e) }, 500);
+      return new Response(JSON.stringify({ ok: false, error: "SERVER_ERROR" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json", ...cors, "Cache-Control": "no-store" },
+      });
     }
   }
   
-  function json(obj, status = 200) {
-    return new Response(JSON.stringify(obj), {
-      status,
+  export async function onRequestOptions() {
+    return new Response(null, {
+      status: 204,
       headers: {
-        "content-type": "application/json; charset=utf-8",
-        "cache-control": "no-store"
-      }
-          });
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+    });
   }
   

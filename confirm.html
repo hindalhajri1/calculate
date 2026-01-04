@@ -25,6 +25,77 @@
     .modal .mbtns{display:flex;gap:10px;justify-content:flex-start;margin-top:12px}
   </style>
 </head>
+<script>
+    const params = new URLSearchParams(location.search);
+    const token = params.get("token");
+  
+    const btnConfirm = document.getElementById("btnConfirm");
+    const btnCancel  = document.getElementById("btnCancel");
+    const msg = document.getElementById("msg");
+  
+    function setLoading(v) {
+      btnConfirm.disabled = v;
+      btnCancel.disabled  = v;
+      btnConfirm.style.opacity = v ? "0.6" : "1";
+      btnCancel.style.opacity  = v ? "0.6" : "1";
+    }
+  
+    function showFinal(decision, decidedAt) {
+      const text =
+        decision === "confirm"
+          ? "تم تأكيد طلبك بنجاح ✅ (لا يمكن تغيير القرار)"
+          : "تم إلغاء طلبك ✅ (لا يمكن تغيير القرار)";
+  
+      msg.innerHTML = `
+        <div style="font-size:18px;line-height:1.8;text-align:center">
+          ${text}<br/>
+          <small style="opacity:.7">وقت القرار: ${decidedAt || "-"}</small>
+        </div>
+      `;
+  
+      btnConfirm.style.display = "none";
+      btnCancel.style.display = "none";
+    }
+  
+    async function decide(action) {
+      if (!token) {
+        msg.textContent = "الرابط غير صالح.";
+        return;
+      }
+      if (btnConfirm.disabled || btnCancel.disabled) return; // منع الضغط المتكرر
+  
+      setLoading(true);
+      msg.textContent = "جارٍ تثبيت قرارك...";
+  
+      try {
+        const r = await fetch("/api/decide", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          cache: "no-store",
+          body: JSON.stringify({ token, action })
+        });
+  
+        const data = await r.json();
+  
+        if (!data.ok) {
+          setLoading(false);
+          msg.textContent = data.error === "NOT_FOUND"
+            ? "الرابط غير موجود أو منتهي."
+            : "تعذر تنفيذ العملية، حاول مرة أخرى.";
+          return;
+        }
+  
+        showFinal(data.decision, data.decided_at);
+      } catch (e) {
+        setLoading(false);
+        msg.textContent = "فشل الاتصال. تأكد من الإنترنت وحاول.";
+      }
+    }
+  
+    btnConfirm?.addEventListener("click", () => decide("confirm"));
+    btnCancel?.addEventListener("click", () => decide("cancel"));
+  </script>
+  
 <body>
   <div class="wrap">
     <div class="card">
@@ -52,107 +123,5 @@
       </div>
     </div>
   </div>
-
-<script>
-  const token = new URLSearchParams(location.search).get("token");
-  const stateBox = document.getElementById("stateBox");
-  const modalBack = document.getElementById("modalBack");
-  const mTitle = document.getElementById("mTitle");
-  const mText = document.getElementById("mText");
-  const mYes = document.getElementById("mYes");
-  const mNo = document.getElementById("mNo");
-
-  if(!token){
-    showState("الرابط غير صالح أو غير مكتمل (لا يوجد token).", true);
-    disableAll();
-  }
-
-  let pendingAction = null;
-
-  document.getElementById("btnConfirm").onclick = () => openModal("confirm");
-  document.getElementById("btnCancel").onclick  = () => openModal("cancel");
-
-  function openModal(action){
-    pendingAction = action;
-    if(action === "confirm"){
-      mTitle.textContent = "تأكيد الاستلام";
-      mText.textContent = "هل أنت متأكد أنك تريد تأكيد الاستلام؟";
-      mYes.className = "ok";
-      mYes.textContent = "نعم، أكد";
-    }else{
-      mTitle.textContent = "إلغاء الطلب";
-      mText.textContent = "هل أنت متأكد أنك تريد إلغاء الطلب؟";
-      mYes.className = "no";
-      mYes.textContent = "نعم، إلغاء";
-    }
-    modalBack.style.display = "grid";
-  }
-
-  mNo.onclick = () => { modalBack.style.display = "none"; pendingAction = null; };
-
-  mYes.onclick = async () => {
-    if(!token || !pendingAction) return;
-
-    modalBack.style.display = "none";
-    showState("جاري حفظ قرارك...", false);
-
-    const res = await fetch("/api/decide", {
-      method: "POST",
-      headers: {"content-type":"application/json"},
-      body: JSON.stringify({ token, action: pendingAction })
-    });
-
-    const data = await res.json().catch(()=> ({}));
-
-    if(res.status === 200){
-      if(data.decision === "confirmed") showState("✅ تم تأكيد الاستلام بنجاح. شكراً لك.", false);
-      else showState("❌ تم إلغاء الطلب. شكراً لتوضيحك.", false);
-
-      disableAll();
-      return;
-    }
-
-    if(res.status === 409){
-      // already decided
-      const d = data.decision;
-      if(d === "confirmed") showState("✅ هذا الرابط تم تأكيده مسبقاً ولا يمكن تغييره.", false);
-      else if(d === "cancelled") showState("❌ هذا الرابط تم إلغاؤه مسبقاً ولا يمكن تغييره.", false);
-      else showState("تم اتخاذ قرار مسبقاً ولا يمكن التعديل.", false);
-
-      disableAll();
-      return;
-    }
-
-
-    showState("حدث خطأ: الرابط غير صالح أو غير موجود.", true);
-  };
-
-  let submitting = false;
-//new
-  mYes.onclick = async () => {
-    if (submitting) return;
-    submitting = true;
-  
-    disableAll();
-    mYes.disabled = true;
-    mNo.disabled = true;
-  
-  };
-  
-
-  function showState(msg, isErr){
-    stateBox.style.display = "block";
-    stateBox.style.borderColor = isErr ? "#fecaca" : "#e5e7eb";
-    stateBox.style.background = isErr ? "#fff1f2" : "#f8fafc";
-    stateBox.textContent = msg;
-  }
-
-  function disableAll(){
-    document.getElementById("btnConfirm").disabled = true;
-    document.getElementById("btnCancel").disabled  = true;
-    document.getElementById("btnConfirm").style.opacity = .6;
-    document.getElementById("btnCancel").style.opacity  = .6;
-  }
-</script>
 </body>
 </html>
