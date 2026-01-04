@@ -367,39 +367,19 @@
     return `https://wa.me/${m}?text=${msg}`;
   }
   
-
-  async function loadUser() {
-    const res = await fetch("/api/stats");
-    if (!res.ok) return { name: "مستخدم", email: "" };
-    const text = await res.text();
-    console.log("API RESPONSE:", text);
-    return;
-    
-    const u = await res.json();
-
-    // اسم لطيف من الإيميل: قبل @ مع إزالة النقاط والشرطات
-    const pretty =
-      (u.name || "")
-        .replace(/[._-]+/g, " ")
-        .trim();
-
-    return { name: pretty || "مستخدم", email: u.email || "" };
-  }
   async function loadDashboard(){
-    const user = await loadUser();
-    // IMPORTANT: إذا صار فيه مشكلة cookies، نضيف credentials
-    const res = await fetch("/api/stats", { credentials: "include" });
+    const res = await fetch("/api/stats");
     if(!res.ok){
-      document.body.innerHTML = "غير مصرح بالدخول";
+      document.body.innerHTML = "تعذر تحميل البيانات";
       return;
     }
-
+  
     const data = await res.json();
-
+  
     // Header
-    document.getElementById("hello").textContent = `مرحباً بك، ${user.name} 👋`;
-    document.getElementById("updated").textContent = `آخر تحديث: ${new Date().toLocaleString("ar-SA")}`;
-
+    document.getElementById("hello").textContent = "مرحباً بك 👋";
+    document.getElementById("updated").textContent =
+      `آخر تحديث: ${new Date().toLocaleString("ar-SA")}`;
     // Cards
     document.getElementById("total").textContent = data?.cards?.total ?? 0;
     document.getElementById("confirmed").textContent = data?.cards?.confirmed ?? 0;
