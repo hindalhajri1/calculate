@@ -169,6 +169,7 @@
 .s-canceled{color:#991b1b}
 
 
+
     /* WhatsApp button */
     .wa{
       display:inline-flex;
@@ -327,34 +328,20 @@
     }catch(e){ return iso || "-" }
   }
 
-  function statusBadge(status){
-    const s = (status || "").toLowerCase();
+  ffunction statusBadge(status){
+    const s = String(status || "").toLowerCase();
   
     if (s === "confirmed" || s === "received") {
-      return `
-        <span class="status s-confirmed">
-          <span class="dot"></span>
-          مؤكد
-        </span>
-      `;
+      return '<span class="status s-confirmed"><span class="dot"></span>مؤكد</span>';
     }
   
     if (s === "canceled" || s === "cancelled") {
-      return `
-        <span class="status s-canceled">
-          <span class="dot"></span>
-          ملغي
-        </span>
-      `;
+      return '<span class="status s-canceled"><span class="dot"></span>ملغي</span>';
     }
   
-    return `
-      <span class="status s-pending">
-        <span class="dot"></span>
-        معلق
-      </span>
-    `;
+    return '<span class="status s-pending"><span class="dot"></span>معلق</span>';
   }
+  
   
 
   function waLink(mobile, name, token){
@@ -461,6 +448,7 @@
   }
 
   document.getElementById("btnRefresh").addEventListener("click", loadDashboard);
+  
   loadDashboard();
 </script>
 </body>
