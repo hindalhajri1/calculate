@@ -3,7 +3,7 @@ export async function onRequestGet({ env }) {
     // ✅ مهم: اسم الـ binding هنا لازم يطابق اللي حطيتيه في D1 binding داخل Cloudflare Pages
     // إذا اسم البايندنق عندك "talab_db" خليه env.talab_db
     // إذا اسم البايندنق عندك "DB" خليه env.DB
-    const db = env.talab_db; // <-- عدّليها لو اسم البايندنق مختلف
+    const db = env.DB; // <-- عدّليها لو اسم البايندنق مختلف
 
     const totalRow = await db.prepare(`
       SELECT COUNT(*) AS n FROM requests
