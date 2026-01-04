@@ -165,6 +165,9 @@
     .s-confirmed .dot{background:var(--ok)}
     .s-pending{color:#92400e}
     .s-confirmed{color:#166534}
+    .s-canceled .dot{background:#ef4444}
+.s-canceled{color:#991b1b}
+
 
     /* WhatsApp button */
     .wa{
@@ -251,6 +254,14 @@
 
       <div class="card stat">
         <div class="meta">
+          <div class="label">ملغية</div>
+          <div class="value" id="canceled">—</div>
+        </div>
+        <div class="pill" style="background:#fef2f2;color:#991b1b;">تم الإلغاء</div>
+      </div>
+      
+      <div class="card stat">
+        <div class="meta">
           <div class="label">المدن</div>
           <div class="value" id="citiesCount">—</div>
         </div>
@@ -317,16 +328,34 @@
   }
 
   function statusBadge(status){
-    const isConfirmed = (status || "").toLowerCase() === "confirmed";
-    const cls = isConfirmed ? "s-confirmed" : "s-pending";
-    const label = isConfirmed ? "مؤكد" : "معلق";
+    const s = (status || "").toLowerCase();
+  
+    if (s === "confirmed" || s === "received") {
+      return `
+        <span class="status s-confirmed">
+          <span class="dot"></span>
+          مؤكد
+        </span>
+      `;
+    }
+  
+    if (s === "canceled" || s === "cancelled") {
+      return `
+        <span class="status s-canceled">
+          <span class="dot"></span>
+          ملغي
+        </span>
+      `;
+    }
+  
     return `
-      <span class="status ${cls}">
+      <span class="status s-pending">
         <span class="dot"></span>
-        ${label}
+        معلق
       </span>
     `;
   }
+  
 
   function waLink(mobile, name, token){
     if(!mobile || !token) return "-";
@@ -387,6 +416,8 @@
     document.getElementById("pending").textContent = data?.cards?.pending ?? 0;
     document.getElementById("citiesCount").textContent = (data?.byCity?.length ?? 0);
     document.getElementById("cityHint").textContent = `عدد المدن: ${(data?.byCity?.length ?? 0)}`;
+    document.getElementById("canceled").textContent = data?.cards?.canceled ?? 0;
+
 
     // By City table
     const byCityBody = document.getElementById("byCityBody");
@@ -395,7 +426,9 @@
         <td data-label="المدينة">${r.city || "-"}</td>
         <td data-label="الإجمالي">${r.total ?? 0}</td>
         <td data-label="مؤكدة">${r.confirmed ?? 0}</td>
+        <td data-label="ملغية">${r.canceled ?? 0}</td>
         <td data-label="معلّقة">${r.pending ?? 0}</td>
+
       </tr>
     `).join("");
 
