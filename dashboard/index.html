@@ -369,9 +369,12 @@
   
 
   async function loadUser() {
-    const res = await fetch("/api/me", { credentials: "include" });
+    const res = await fetch("/api/stats");
     if (!res.ok) return { name: "مستخدم", email: "" };
-
+    const text = await res.text();
+    console.log("API RESPONSE:", text);
+    return;
+    
     const u = await res.json();
 
     // اسم لطيف من الإيميل: قبل @ مع إزالة النقاط والشرطات
