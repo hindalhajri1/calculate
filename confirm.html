@@ -56,64 +56,95 @@
 
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
       const params = new URLSearchParams(location.search);
-      const token = params.get("token") || params.get("t");
-
-  
+      const token = (params.get("token") || params.get("t") || "").trim();
+    
       const btnConfirm = document.getElementById("btnConfirm");
       const btnCancel  = document.getElementById("btnCancel");
       const stateBox   = document.getElementById("stateBox");
-  
+    
+      // عناصر المودال الموجودة عندك
+      const modalBack = document.getElementById("modalBack");
+      const mTitle = document.getElementById("mTitle");
+      const mText  = document.getElementById("mText");
+      const mYes   = document.getElementById("mYes");
+      const mNo    = document.getElementById("mNo");
+    
       function showState(html, show = true) {
         stateBox.innerHTML = html;
         stateBox.style.display = show ? "block" : "none";
       }
-  
+    
       function setLoading(v) {
         btnConfirm.disabled = v;
         btnCancel.disabled  = v;
         btnConfirm.style.opacity = v ? "0.6" : "1";
         btnCancel.style.opacity  = v ? "0.6" : "1";
       }
-  
+    
+      function hideButtons() {
+        btnConfirm.style.display = "none";
+        btnCancel.style.display  = "none";
+      }
+    
       function showFinal(decision, decidedAt) {
         const text =
           decision === "confirm"
             ? "تم تأكيد طلبك بنجاح ✅ (لا يمكن تغيير القرار)"
             : "تم إلغاء طلبك ✅ (لا يمكن تغيير القرار)";
-  
+    
         showState(`
           <div style="font-size:16px;line-height:1.9;text-align:center">
             ${text}<br/>
             <small style="opacity:.75">وقت القرار: ${decidedAt || "-"}</small>
           </div>
         `, true);
-  
-        btnConfirm.style.display = "none";
-        btnCancel.style.display  = "none";
+    
+        hideButtons();
       }
-  
+    
+      // ✅ 1) تحقق عند فتح الصفحة: هل القرار اتخذ سابقًا؟
+      async function checkExistingDecision() {
+        if (!token) return;
+    
+        try {
+          const r = await fetch(`/api/status?token=${encodeURIComponent(token)}&t=${Date.now()}`, {
+            cache: "no-store",
+          });
+    
+          const data = await r.json().catch(() => ({}));
+    
+          // إذا فيه قرار سابق → اعرضه واخفي الأزرار
+          if (data.ok && data.decision && data.decided_at) {
+            showFinal(data.decision, data.decided_at);
+          }
+        } catch (e) {
+          // تجاهل
+        }
+      }
+    
+      // ✅ 2) تنفيذ القرار (Confirm/Cancel) عبر API decide
       async function decide(action) {
         if (!token) {
           showState("الرابط غير صالح.", true);
           return;
         }
         if (btnConfirm.disabled || btnCancel.disabled) return;
-  
+    
         setLoading(true);
         showState("جارٍ تثبيت قرارك...", true);
-  
+    
         try {
           const r = await fetch("/api/decide", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             cache: "no-store",
-            body: JSON.stringify({ token, action })
+            body: JSON.stringify({ token, action }),
           });
-  
+    
           const data = await r.json().catch(() => ({}));
-  
+    
           if (!r.ok || !data.ok) {
             setLoading(false);
             showState(
@@ -124,17 +155,56 @@
             );
             return;
           }
-  
+    
+          // نجاح → عرض نتيجة نهائية
           showFinal(data.decision, data.decided_at);
         } catch (e) {
           setLoading(false);
           showState("فشل الاتصال. تأكد من الإنترنت وحاول.", true);
         }
       }
-  
-      btnConfirm.addEventListener("click", () => decide("confirm"));
-      btnCancel.addEventListener("click", () => decide("cancel"));
+    
+      // ✅ 3) مودال نعم/لا قبل اتخاذ القرار
+      let pendingAction = null;
+    
+      function openModal(action) {
+        pendingAction = action;
+    
+        mTitle.textContent = "هل أنت متأكد؟";
+        mText.textContent =
+          action === "confirm"
+            ? "سيتم تأكيد الاستلام نهائيًا، ولن تستطيع التعديل بعد ذلك."
+            : "سيتم إلغاء الطلب نهائيًا، ولن تستطيع التعديل بعد ذلك.";
+    
+        modalBack.style.display = "grid";
+      }
+    
+      function closeModal() {
+        modalBack.style.display = "none";
+        pendingAction = null;
+      }
+    
+      mNo.addEventListener("click", closeModal);
+      modalBack.addEventListener("click", (e) => {
+        if (e.target === modalBack) closeModal();
+      });
+    
+      mYes.addEventListener("click", async () => {
+        if (!pendingAction) return;
+        const action = pendingAction;
+        closeModal();
+        await decide(action);
+      });
+    
+      // ✅ قبل ربط الأحداث: افحص قرار سابق
+      await checkExistingDecision();
+    
+      // إذا القرار سابقًا، الأزرار مخفية أصلاً… لكن نزيد حماية
+      btnConfirm.addEventListener("click", () => openModal("confirm"));
+      btnCancel.addEventListener("click", () => openModal("cancel"));
     });
-  </script>  
+    </script>
+    
+
 </body>
 </html>
