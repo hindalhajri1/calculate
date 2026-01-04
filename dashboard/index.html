@@ -260,6 +260,8 @@
       </div>
       <div class="actions">
         <button class="btn light" id="btnRefresh">تحديث البيانات</button>
+        <button class="btn white" id="btnNewForm" type="button">+ إنشاء فورم</button>
+
         <a class="btn white" href="/" style="text-decoration:none;">فتح الفورم</a>
       </div>
     </div>
@@ -521,7 +523,97 @@ citiesGrid.innerHTML = (data.byCity || []).map(c => {
 
   document.getElementById("btnRefresh").addEventListener("click", loadDashboard);
   
+
+  const modalBack = document.getElementById("modalBack");
+const btnNewForm = document.getElementById("btnNewForm");
+const btnCloseModal = document.getElementById("btnCloseModal");
+const btnCreateForm = document.getElementById("btnCreateForm");
+const newFormName = document.getElementById("newFormName");
+const newFormSlug = document.getElementById("newFormSlug");
+const newFormMsg = document.getElementById("newFormMsg");
+
+function openModal(){
+  modalBack.style.display = "grid";
+  newFormMsg.style.display = "none";
+  newFormName.value = "";
+  newFormSlug.value = "";
+}
+function closeModal(){
+  modalBack.style.display = "none";
+}
+
+btnNewForm?.addEventListener("click", openModal);
+btnCloseModal?.addEventListener("click", closeModal);
+modalBack?.addEventListener("click", (e)=>{ if(e.target === modalBack) closeModal(); });
+
+async function createForm(){
+  newFormMsg.style.display = "block";
+  newFormMsg.style.background = "#fafafa";
+  newFormMsg.style.borderColor = "#e5e7eb";
+  newFormMsg.textContent = "جارٍ إنشاء الفورم...";
+
+  const payload = {
+    name: newFormName.value.trim(),
+    slug: newFormSlug.value.trim()
+  };
+
+  const res = await fetch("/api/forms-create", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+    credentials: "include"
+  });
+
+  const data = await res.json().catch(()=> ({}));
+
+  if(!res.ok || !data.ok){
+    let msg = data.error || "فشل إنشاء الفورم";
+    if(msg === "SLUG_EXISTS") msg = "الـ slug مستخدم مسبقاً، غيريه.";
+    if(msg === "NAME_REQUIRED") msg = "اكتبي اسم الفورم.";
+    newFormMsg.style.background = "#fef2f2";
+    newFormMsg.style.borderColor = "#fecaca";
+    newFormMsg.textContent = msg;
+    return;
+  }
+
+  newFormMsg.style.background = "#ecfdf5";
+  newFormMsg.style.borderColor = "#bbf7d0";
+  newFormMsg.textContent = `✅ تم إنشاء الفورم: ${data.form.name}`;
+
+  // نحدّث الداشبورد (وبعدين بنضيف قائمة فورماتي في UI)
+  setTimeout(()=>{ closeModal(); }, 500);
   loadDashboard();
+}
+
+btnCreateForm?.addEventListener("click", createForm);
+
+  loadDashboard();
+
+  
 </script>
+<div id="modalBack" style="position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;place-items:center;padding:18px;z-index:9999">
+  <div style="width:min(520px,100%);background:#fff;border-radius:18px;padding:16px;border:1px solid #e5e7eb">
+    <h3 style="margin:0 0 10px;font-weight:900">إنشاء فورم جديد</h3>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div>
+        <label style="font-weight:900;display:block;margin-bottom:6px">اسم الفورم</label>
+        <input id="newFormName" style="width:100%;padding:12px;border-radius:12px;border:1px solid #e5e7eb;font-family:inherit" placeholder="مثال: طلبات رمضان" />
+      </div>
+      <div>
+        <label style="font-weight:900;display:block;margin-bottom:6px">Slug (اختياري)</label>
+        <input id="newFormSlug" style="width:100%;padding:12px;border-radius:12px;border:1px solid #e5e7eb;font-family:inherit" placeholder="ramadan-requests" />
+        <div style="color:#6b7280;font-size:12px;margin-top:6px">لو تركتيه فاضي بنولده تلقائياً.</div>
+      </div>
+
+      <div id="newFormMsg" style="display:none;padding:10px;border-radius:12px;border:1px solid #e5e7eb;background:#fafafa;font-weight:900"></div>
+
+      <div style="display:flex;gap:10px;justify-content:flex-start;margin-top:6px">
+        <button class="btn white" id="btnCreateForm" type="button">إنشاء</button>
+        <button class="btn light" id="btnCloseModal" type="button">إغلاق</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
