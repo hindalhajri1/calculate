@@ -4,41 +4,137 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>نموذج الطلب</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+
   <style>
-    :root{--bg:#f3f4f6;--card:#fff;--text:#111827;--sub:#6b7280;--border:#e5e7eb;--r:18px;}
+    :root{
+      --bg:#f3f4f6;
+      --card:#fff;
+      --text:#111827;
+      --sub:#6b7280;
+      --border:#e5e7eb;
+      --brand:#5b2ea6;
+      --brand2:#7a43d1;
+      --bad:#ef4444;
+      --ok:#16a34a;
+      --shadow:0 16px 30px rgba(0,0,0,.08);
+      --r:18px;
+    }
     *{box-sizing:border-box}
     body{margin:0;font-family:Tajawal,system-ui;background:var(--bg);color:var(--text);padding:18px}
-    .wrap{max-width:680px;margin:0 auto}
-    .card{background:var(--card);border:1px solid rgba(17,24,39,.08);border-radius:var(--r);padding:16px;box-shadow:0 16px 30px rgba(0,0,0,.08)}
-    h1{margin:0 0 6px;font-size:18px;font-weight:900}
-    p{margin:0 0 14px;color:var(--sub);font-size:13px;line-height:1.7}
+    .wrap{max-width:720px;margin:0 auto}
+
+    /* header */
+    .hero{
+      background:linear-gradient(135deg,var(--brand),var(--brand2));
+      color:#fff;border-radius:22px;padding:16px 16px;box-shadow:var(--shadow);
+      margin-bottom:12px
+    }
+    .hero h1{margin:0;font-size:18px;font-weight:900}
+    .hero p{margin:6px 0 0;color:rgba(255,255,255,.9);font-size:13px;line-height:1.7;font-weight:700}
+    .pill{
+      display:inline-flex;gap:8px;align-items:center;
+      margin-top:10px;
+      background:rgba(255,255,255,.16);
+      border:1px solid rgba(255,255,255,.22);
+      border-radius:999px;
+      padding:7px 10px;
+      font-weight:900;
+      font-size:12px;
+      direction:ltr;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid rgba(17,24,39,.08);
+      border-radius:var(--r);
+      padding:16px;
+      box-shadow:var(--shadow);
+    }
+
+    .hint{
+      margin:0 0 14px;color:var(--sub);font-size:13px;line-height:1.7;font-weight:700
+    }
+
     .row{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
     label{font-weight:900;font-size:13px}
+    .req{color:var(--bad);font-weight:900;margin-right:6px}
+
     input,select,textarea{
-      border:1px solid var(--border);border-radius:14px;padding:12px 12px;font-family:inherit;font-size:14px;outline:none;
-      background:#fff
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px 12px;
+      font-family:inherit;
+      font-size:14px;
+      outline:none;
+      background:#fff;
     }
     input:focus,select:focus,textarea:focus{border-color:#111827}
+    textarea{min-height:110px;resize:vertical}
+
+    .field-help{color:var(--sub);font-size:12px;font-weight:700;margin-top:2px}
+    .field-err{display:none;color:#991b1b;font-size:12px;font-weight:900;margin-top:2px}
+
     .btn{
-      width:100%;border:0;border-radius:14px;padding:12px 14px;font-weight:900;cursor:pointer;font-family:inherit;
-      background:#111827;color:#fff
+      width:100%;
+      border:0;border-radius:14px;padding:12px 14px;
+      font-weight:900;cursor:pointer;font-family:inherit;
+      background:#111827;color:#fff;
     }
-    .msg{margin-top:12px;padding:12px;border-radius:14px;border:1px solid var(--border);background:#fafafa;display:none}
-    .ok{border-color:#bbf7d0;background:#ecfdf5}
-    .err{border-color:#fecaca;background:#fef2f2}
-    .muted{color:var(--sub)}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+
+    .msg{
+      margin-top:12px;padding:12px;border-radius:14px;
+      border:1px solid var(--border);
+      background:#fafafa;
+      display:none;
+      font-weight:900;
+      line-height:1.8;
+    }
+    .ok{border-color:#bbf7d0;background:#ecfdf5;color:#166534}
+    .err{border-color:#fecaca;background:#fef2f2;color:#991b1b}
+    .muted{color:var(--sub);font-weight:700}
     a{color:#111827;font-weight:900}
     code{direction:ltr;unicode-bidi:bidi-override}
+
+    .top-actions{
+      display:flex;gap:10px;flex-wrap:wrap;margin-top:12px
+    }
+    .ghost{
+      border:1px solid var(--border);
+      background:#fff;
+      color:#111827;
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:900;
+      cursor:pointer;
+      font-family:inherit;
+      width:100%;
+    }
+    @media (min-width: 560px){
+      .ghost{width:auto}
+    }
   </style>
 </head>
+
 <body>
   <div class="wrap">
-    <div class="card">
+
+    <div class="hero">
       <h1 id="formTitle">نموذج الطلب</h1>
       <p id="formDesc">يرجى تعبئة البيانات التالية.</p>
+      <div class="pill" id="formMeta">Form: —</div>
+
+      <div class="top-actions">
+        <button class="ghost" id="btnReload" type="button">تحديث النموذج</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="hint" id="introHint">الحقول المعلّمة بـ <span style="color:#ef4444;font-weight:900">*</span> مطلوبة.</p>
 
       <form id="dynamicForm"></form>
 
@@ -46,15 +142,21 @@
 
       <div class="msg" id="msgBox"></div>
     </div>
+
   </div>
 
 <script>
   const formEl = document.getElementById("dynamicForm");
   const msgBox = document.getElementById("msgBox");
   const submitBtn = document.getElementById("submitBtn");
+  const btnReload = document.getElementById("btnReload");
 
   let currentForm = null;
   let currentFields = [];
+
+  function esc(s){
+    return String(s||"").replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
+  }
 
   function showMsg(type, html){
     msgBox.className = "msg " + (type === "ok" ? "ok" : "err");
@@ -62,82 +164,258 @@
     msgBox.innerHTML = html;
   }
 
-  function esc(s){
-    return String(s||"").replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
+  function hideMsg(){ msgBox.style.display = "none"; }
+
+  function getFormIdFromUrl(){
+    const p = new URLSearchParams(location.search);
+    const id = (p.get("form_id") || p.get("id") || "").trim();
+    return id ? Number(id) : null;
   }
 
-  async function loadForm(){
-    msgBox.style.display = "none";
-    formEl.innerHTML = `<div class="muted">جارٍ تحميل الحقول...</div>`;
+  function fieldKey(f){
+    // يدعم: options.key أو options_json.key
+    try{
+      if (f?.options?.key) return String(f.options.key).trim();
+      if (f?.options_json){
+        const o = typeof f.options_json === "string" ? JSON.parse(f.options_json) : f.options_json;
+        if (o?.key) return String(o.key).trim();
+      }
+    }catch(e){}
+    return "";
+  }
 
-    // حالياً نستخدم الفورم الافتراضي (id=1) من /api/form
-    const res = await fetch("/api/form");
-    const data = await res.json();
+  function normalizeType(t){
+    const x = String(t || "text").toLowerCase().trim();
+    // mapping بسيط
+    if (["text","tel","number","email","date"].includes(x)) return x;
+    if (x === "textarea") return "textarea";
+    if (x === "select") return "select";
+    return "text";
+  }
 
-    if(!res.ok || !data.ok){
-      formEl.innerHTML = "";
-      showMsg("err", `تعذر تحميل النموذج. <br><span class="muted">${esc(data?.error || "Unknown")}</span>`);
-      submitBtn.disabled = true;
-      return;
+  function parseOptionsList(f){
+    // خيارات select: options_json.options أو options.options
+    try{
+      let o = null;
+      if (f?.options && typeof f.options === "object") o = f.options;
+      if (!o && f?.options_json) o = typeof f.options_json === "string" ? JSON.parse(f.options_json) : f.options_json;
+      const list = o?.options || o?.items || o?.values || [];
+      if (Array.isArray(list)) return list.map(x => String(x));
+      if (typeof list === "string"){
+        // يدعم "a,b,c"
+        return list.split(",").map(s=>s.trim()).filter(Boolean);
+      }
+    }catch(e){}
+    return [];
+  }
+
+  function setFieldError(key, msg){
+    const err = document.querySelector(`[data-err-for="${CSS.escape(key)}"]`);
+    if(err){
+      err.textContent = msg || "";
+      err.style.display = msg ? "block" : "none";
     }
+  }
 
-    currentForm = data.form;
-    currentFields = data.fields || [];
-
-    document.getElementById("formTitle").textContent = currentForm?.name || "نموذج الطلب";
-
-    renderFields(currentFields);
+  function clearAllErrors(){
+    currentFields.forEach(f=>{
+      const key = fieldKey(f);
+      if(key) setFieldError(key, "");
+    });
   }
 
   function renderFields(fields){
-    formEl.innerHTML = fields.map(f => {
-      const key = f.options?.key || (f.options_json ? JSON.parse(f.options_json).key : "");
-      const required = Number(f.required) === 1 ? "required" : "";
+    formEl.innerHTML = "";
+
+    if(!fields.length){
+      formEl.innerHTML = `<div class="muted">لا توجد حقول لهذا النموذج حالياً.</div>`;
+      return;
+    }
+
+    const html = fields.map(f => {
+      const key = fieldKey(f);
       const label = f.label || key || "حقل";
+      const required = Number(f.required) === 1;
 
-      // أنواع مدعومة مبدئياً: text / tel / number
-      let inputAttrs = "";
-      let type = (f.field_type || "text").toLowerCase();
+      const type = normalizeType(f.field_type);
 
-      if(type === "number"){
-        inputAttrs = `min="1" inputmode="numeric"`;
-      }
-      if(type === "tel"){
-        inputAttrs = `inputmode="tel"`;
+      const helpText = (f.help_text || f.help || "").trim();
+      const reqMark = required ? `<span class="req">*</span>` : "";
+
+      // input attributes
+      let inputAttrs = `id="${esc(key)}" name="${esc(key)}"`;
+      if(required) inputAttrs += ` required`;
+
+      if(type === "number") inputAttrs += ` inputmode="numeric"`;
+      if(type === "tel") inputAttrs += ` inputmode="tel"`;
+      if(type === "email") inputAttrs += ` inputmode="email" autocomplete="email"`;
+      if(type === "date") inputAttrs += ` inputmode="numeric"`;
+
+      let control = "";
+
+      if(type === "textarea"){
+        control = `<textarea ${inputAttrs} placeholder=""></textarea>`;
+      } else if(type === "select"){
+        const opts = parseOptionsList(f);
+        const optionsHtml = [`<option value="">اختر...</option>`]
+          .concat(opts.map(o=>`<option value="${esc(o)}">${esc(o)}</option>`))
+          .join("");
+        control = `<select ${inputAttrs}>${optionsHtml}</select>`;
+      } else {
+        control = `<input ${inputAttrs} type="${esc(type)}" />`;
       }
 
       return `
         <div class="row">
-          <label for="${esc(key)}">${esc(label)} ${required ? '<span class="muted">(مطلوب)</span>' : ''}</label>
-          <input id="${esc(key)}" name="${esc(key)}" type="${esc(type)}" ${required} ${inputAttrs} />
+          <label for="${esc(key)}">${esc(label)} ${reqMark}</label>
+          ${control}
+          ${helpText ? `<div class="field-help">${esc(helpText)}</div>` : ``}
+          <div class="field-err" data-err-for="${esc(key)}"></div>
         </div>
       `;
     }).join("");
+
+    formEl.innerHTML = html;
+
+    // clear field error on input
+    fields.forEach(f=>{
+      const key = fieldKey(f);
+      if(!key) return;
+      const el = document.querySelector(`[name="${CSS.escape(key)}"]`);
+      if(el){
+        el.addEventListener("input", ()=> setFieldError(key,""));
+        el.addEventListener("change", ()=> setFieldError(key,""));
+      }
+    });
+  }
+
+  async function loadForm(){
+    hideMsg();
+    submitBtn.disabled = true;
+    formEl.innerHTML = `<div class="muted">جارٍ تحميل الحقول...</div>`;
+
+    const formId = getFormIdFromUrl();
+
+    // ✅ API الأساسي (نفضّل form_id)
+    const tryUrls = [];
+    if(formId) tryUrls.push(`/api/form?form_id=${encodeURIComponent(formId)}&t=${Date.now()}`);
+    // fallback لو API قديم
+    tryUrls.push(`/api/form?t=${Date.now()}`);
+
+    let data = null;
+    let ok = false;
+    let lastErr = "";
+
+    for(const url of tryUrls){
+      try{
+        const res = await fetch(url, { cache:"no-store", headers:{ "Accept":"application/json" } });
+        const ct = (res.headers.get("content-type") || "").toLowerCase();
+        const text = await res.text();
+        if(!ct.includes("application/json")){
+          lastErr = "رجّع HTML بدل JSON (تأكدي من API/Cloudflare Access).";
+          continue;
+        }
+        const j = JSON.parse(text);
+        if(res.ok && j.ok){
+          data = j; ok = true; break;
+        }else{
+          lastErr = j.error || "تعذر تحميل النموذج";
+        }
+      }catch(e){
+        lastErr = e.message || String(e);
+      }
+    }
+
+    if(!ok){
+      formEl.innerHTML = "";
+      showMsg("err", `تعذر تحميل النموذج.<br><span class="muted">${esc(lastErr || "Unknown")}</span>`);
+      submitBtn.disabled = true;
+      return;
+    }
+
+    currentForm = data.form || null;
+    currentFields = data.fields || [];
+
+    document.getElementById("formTitle").textContent = currentForm?.name || "نموذج الطلب";
+    document.getElementById("formDesc").textContent = currentForm?.description || "يرجى تعبئة البيانات التالية.";
+    document.getElementById("formMeta").textContent =
+      `Form ID: ${(currentForm?.id ?? getFormIdFromUrl() ?? "—")} • Fields: ${currentFields.length}`;
+
+    renderFields(currentFields);
+
+    submitBtn.disabled = false;
+  }
+
+  function buildPayload(){
+    const payload = { form_id: currentForm?.id || getFormIdFromUrl() || 1 };
+
+    currentFields.forEach(f => {
+      const key = fieldKey(f);
+      if(!key) return;
+      const el = document.querySelector(`[name="${CSS.escape(key)}"]`);
+      payload[key] = el ? String(el.value || "") : "";
+    });
+
+    return payload;
+  }
+
+  function validate(){
+    clearAllErrors();
+
+    let firstBad = null;
+
+    currentFields.forEach(f=>{
+      const key = fieldKey(f);
+      if(!key) return;
+
+      const required = Number(f.required) === 1;
+      if(!required) return;
+
+      const el = document.querySelector(`[name="${CSS.escape(key)}"]`);
+      const val = (el ? String(el.value || "") : "").trim();
+
+      if(!val){
+        setFieldError(key, "هذا الحقل مطلوب");
+        if(!firstBad) firstBad = el;
+      }
+    });
+
+    if(firstBad){
+      firstBad.focus?.();
+      showMsg("err", "فضلاً تأكدي من تعبئة الحقول المطلوبة.");
+      return false;
+    }
+
+    return true;
   }
 
   async function submitForm(){
-    msgBox.style.display = "none";
+    hideMsg();
+
+    if(submitBtn.disabled) return;
+    if(!validate()) return;
+
     submitBtn.disabled = true;
+    const oldText = submitBtn.textContent;
     submitBtn.textContent = "جارٍ الإرسال...";
 
     try{
-      const payload = { form_id: currentForm?.id || 1 };
-
-      // جمع قيم الحقول بناء على key
-      currentFields.forEach(f => {
-        const key = f.options?.key || "";
-        if(!key) return;
-        const el = document.querySelector(`[name="${CSS.escape(key)}"]`);
-        payload[key] = el ? el.value : "";
-      });
+      const payload = buildPayload();
 
       const res = await fetch("/api/register", {
         method:"POST",
-        headers:{ "Content-Type":"application/json" },
+        headers:{ "Content-Type":"application/json", "Accept":"application/json" },
+        cache:"no-store",
         body: JSON.stringify(payload)
       });
 
-      const data = await res.json();
+      const ct = (res.headers.get("content-type") || "").toLowerCase();
+      const text = await res.text();
+      if(!ct.includes("application/json")){
+        showMsg("err", "تعذر الإرسال: السيرفر رجّع صفحة غير JSON.");
+        return;
+      }
+      const data = JSON.parse(text);
 
       if(!res.ok || !data.ok){
         showMsg("err", `تعذر الإرسال: <b>${esc(data?.error || "خطأ")}</b>`);
@@ -146,21 +424,26 @@
 
       showMsg("ok", `
         ✅ ${esc(data.message || "تم التسجيل")}<br>
-        رابط التأكيد: <a href="${esc(data.confirmUrl)}" target="_blank">فتح رابط التأكيد</a><br>
+        <span class="muted">للتأكيد افتحي الرابط التالي:</span><br>
+        <a href="${esc(data.confirmUrl)}" target="_blank" rel="noopener">فتح رابط التأكيد</a><br>
         <span class="muted">Token: <code>${esc(data.token)}</code></span>
       `);
 
-      formEl.reset?.();
+      // reset form values
+      const formNode = document.getElementById("dynamicForm");
+      formNode.reset?.();
 
     }catch(e){
       showMsg("err", `خطأ: ${esc(e.message || e)}`);
     }finally{
       submitBtn.disabled = false;
-      submitBtn.textContent = "إرسال";
+      submitBtn.textContent = oldText;
     }
   }
 
   submitBtn.addEventListener("click", submitForm);
+  btnReload.addEventListener("click", loadForm);
+
   loadForm();
 </script>
 </body>
