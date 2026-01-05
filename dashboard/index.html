@@ -530,12 +530,11 @@ ${confirmUrl}`
   }
 
   function openCurrentForm(){
-    const f = getCurrentForm();
-    if(!f) return alert("اختاري فورم أولاً");
-    // حسب نظامك الحالي: إذا الفورم الرئيسي في /
-    // لو عندك مسار /f/slug غيّري السطر التالي إلى: window.location.href = `/f/${f.slug}`;
-    window.location.href = "/";
-  }
+  const f = getCurrentForm();
+  if(!f) return alert("اختاري فورم أولاً");
+  window.open(`/?form_id=${encodeURIComponent(f.id)}`, "_blank");
+}
+
 
   // ========= Dashboard =========
   async function loadDashboard(){
@@ -643,6 +642,8 @@ ${confirmUrl}`
     newFormMsg.style.background = "#fafafa";
     newFormMsg.style.borderColor = "#e5e7eb";
     newFormMsg.textContent = "جارٍ إنشاء الفورم...";
+    window.open(`/?form_id=${encodeURIComponent(data.form.id)}`, "_blank");
+
 
     const payload = {
       name: newFormName.value.trim(),
@@ -675,10 +676,14 @@ ${confirmUrl}`
     // إعادة تحميل الفورمات + اختيار الجديد
     const forms = await loadMyForms();
     setFormSelect(forms);
-    CURRENT_FORM_ID = Number(data.form.id || CURRENT_FORM_ID);
-    localStorage.setItem("current_form_id", String(CURRENT_FORM_ID));
 
-    setTimeout(()=> closeModal(), 450);
+    CURRENT_FORM_ID = Number(data.form.id || CURRENT_FORM_ID);
+localStorage.setItem("current_form_id", String(CURRENT_FORM_ID));
+
+// افتحيه مباشرة
+window.open(`/?form_id=${encodeURIComponent(data.form.id)}`, "_blank");
+
+setTimeout(()=> closeModal(), 450);
     loadDashboard();
   }
 
@@ -694,6 +699,8 @@ ${confirmUrl}`
       return;
     }
     setFormSelect(forms);
+
+
     loadDashboard();
   })();
 
