@@ -48,6 +48,7 @@
       align-items:center;
       justify-content:space-between;
       gap:12px;
+      flex-wrap:wrap;
     }
     .topbar h1{margin:0;font-size:22px;font-weight:900}
     .topbar .meta{margin-top:6px;color:rgba(255,255,255,.85);font-size:13px;font-weight:600}
@@ -174,6 +175,7 @@
       align-items:flex-start;
       gap:12px;
       border-bottom:1px solid var(--border);
+      flex-wrap:wrap;
     }
     .panel-head .title{
       font-weight:900;
@@ -223,7 +225,7 @@
     .tab-body{padding:14px;}
     .muted{color:var(--muted);font-weight:800}
 
-    /* Stats inside tab */
+    /* Stats */
     .chips{
       margin-top:10px;
       display:grid;
@@ -366,11 +368,7 @@
     </div>
 
     <div class="grid" id="formsGrid">
-      <div class="form-card create-card">
-        <div class="create-icon">+</div>
-        <div class="form-title">إنشاء نموذج</div>
-        <div class="create-hint">ابدئي نموذج جديد، وبعدها افتحيه وعدّلي الحقول وشوفي الإحصائيات من داخل النموذج.</div>
-      </div>
+      <div class="muted">جاري تحميل النماذج…</div>
     </div>
 
     <!-- PANEL -->
@@ -383,15 +381,9 @@
           </div>
 
           <div class="right">
-            <button class="btn primary" id="btnOpenPublic" type="button">
-              فتح الفورم
-            </button>
-            <button class="btn" id="btnCopyPublic" type="button">
-              نسخ الرابط
-            </button>
-            <button class="btn danger" id="btnDeleteForm" type="button">
-              حذف
-            </button>
+            <button class="btn primary" id="btnOpenPublic" type="button">فتح الفورم</button>
+            <button class="btn" id="btnCopyPublic" type="button">نسخ الرابط</button>
+            <button class="btn danger" id="btnDeleteForm" type="button">حذف</button>
           </div>
         </div>
 
@@ -402,9 +394,9 @@
 
         <div class="tab-body" id="tabEdit">
           <div class="muted">
-            ✅ هنا بنضيف لاحقاً إدارة الحقول (إضافة/حذف/ترتيب/Required/Options) من جدول <b>form_fields</b>.
+            ✅ هنا بنضيف لاحقاً إدارة الحقول من جدول <b>form_fields</b>.
             <br><br>
-            حالياً: اختاري تبويب “الإحصائيات” لعرض إحصائيات هذا النموذج.
+            حالياً: افتحي تبويب “الإحصائيات” لعرض إحصائيات هذا النموذج.
           </div>
         </div>
 
@@ -414,34 +406,19 @@
           <div id="statsContent" style="display:none">
             <div class="chips">
               <div class="chip">
-                <div>
-                  <div class="k">Total</div>
-                  <div class="v" id="sTotal">—</div>
-                </div>
+                <div><div class="k">Total</div><div class="v" id="sTotal">—</div></div>
                 <span class="dot neutral"></span>
               </div>
-
               <div class="chip">
-                <div>
-                  <div class="k">Confirmed</div>
-                  <div class="v" id="sConfirmed">—</div>
-                </div>
+                <div><div class="k">Confirmed</div><div class="v" id="sConfirmed">—</div></div>
                 <span class="dot ok"></span>
               </div>
-
               <div class="chip">
-                <div>
-                  <div class="k">Pending</div>
-                  <div class="v" id="sPending">—</div>
-                </div>
+                <div><div class="k">Pending</div><div class="v" id="sPending">—</div></div>
                 <span class="dot warn"></span>
               </div>
-
               <div class="chip">
-                <div>
-                  <div class="k">Canceled</div>
-                  <div class="v" id="sCanceled">—</div>
-                </div>
+                <div><div class="k">Canceled</div><div class="v" id="sCanceled">—</div></div>
                 <span class="dot bad"></span>
               </div>
             </div>
@@ -457,7 +434,7 @@
               <div class="sub">Gregorian date + English numbers</div>
             </div>
 
-            <div class="card" style="padding:0">
+            <div class="panel-card" style="margin:0 14px 14px;border-radius:14px">
               <table>
                 <thead>
                   <tr>
@@ -510,7 +487,6 @@
 <script>
   // ---------------- helpers ----------------
   function num(n){ return Number(n || 0).toLocaleString("en-US"); }
-
   function fmtDate(iso){
     try{
       const d = new Date(iso);
@@ -520,33 +496,39 @@
       });
     }catch(e){ return iso || "-" }
   }
-
   function statusBadge(status){
     const s = String(status || "").toLowerCase();
-    if (s === "confirmed" || s === "received") {
-      return '<span class="status s-confirmed"><span class="sdot"></span>Confirmed</span>';
-    }
-    if (s === "canceled" || s === "cancelled") {
-      return '<span class="status s-canceled"><span class="sdot"></span>Canceled</span>';
-    }
+    if (s === "confirmed" || s === "received") return '<span class="status s-confirmed"><span class="sdot"></span>Confirmed</span>';
+    if (s === "canceled" || s === "cancelled") return '<span class="status s-canceled"><span class="sdot"></span>Canceled</span>';
     return '<span class="status s-pending"><span class="sdot"></span>Pending</span>';
   }
-
   function formPublicLinkById(id){
     return `${location.origin}/?form_id=${encodeURIComponent(id)}`;
   }
-
   async function safeJson(res){
     const ct = (res.headers.get("content-type") || "").toLowerCase();
     const text = await res.text();
-    if (!ct.includes("application/json")) throw new Error("NOT_JSON::" + text.slice(0, 120));
+    if (!ct.includes("application/json")) throw new Error("NOT_JSON::" + text.slice(0, 160));
     return JSON.parse(text);
+  }
+  function showMsg(text, type="info"){
+    const msg = document.getElementById("newFormMsg");
+    msg.style.display = "block";
+    msg.style.borderColor = "#e5e7eb";
+    msg.style.background = "#fafafa";
+    msg.style.color = "#111827";
+    if(type === "err"){ msg.style.borderColor = "#fecaca"; msg.style.background="#fef2f2"; msg.style.color="#991b1b"; }
+    if(type === "ok"){ msg.style.borderColor = "#bbf7d0"; msg.style.background="#ecfdf5"; msg.style.color="#166534"; }
+    msg.textContent = text;
   }
 
   // ---------------- state ----------------
   let FORMS = [];
-  let CURRENT_FORM = null;
-  let STATS_LOADED_FOR = null;
+  let CURRENT_FORM_ID = null;
+
+  function findForm(id){
+    return FORMS.find(f => Number(f.id) === Number(id)) || null;
+  }
 
   // ---------------- API ----------------
   async function apiMe(){
@@ -582,7 +564,6 @@
   }
 
   async function apiDeleteForm(id){
-    // ✳️ عدّلي endpoint هنا لو اسمّه مختلف عندك
     const res = await fetch("/api/forms-delete", {
       method:"POST",
       credentials:"include",
@@ -606,251 +587,341 @@
     return data;
   }
 
-  // ---------- state ----------
-let FORMS_CACHE = [];
-let CURRENT_FORM_ID = null;
-
-// ---------- modal helpers ----------
-function openModal(){
-  document.getElementById("modalBack").style.display = "grid";
-  const msg = document.getElementById("newFormMsg");
-  msg.style.display = "none";
-  // ✅ لا نمسح الحقول هنا (عشان لو فيه خطأ ما يضيع اللي كتبتيه)
-}
-function closeModal(){
-  document.getElementById("modalBack").style.display = "none";
-}
-
-function showMsg(text, type="info"){
-  const msg = document.getElementById("newFormMsg");
-  msg.style.display = "block";
-  msg.style.borderColor = "#e5e7eb";
-  msg.style.background = "#fafafa";
-  msg.style.color = "#111827";
-
-  if(type === "err"){
-    msg.style.borderColor = "#fecaca";
-    msg.style.background = "#fef2f2";
-    msg.style.color = "#991b1b";
+  // ---------------- UI: modal ----------------
+  function openModal(){
+    document.getElementById("modalBack").style.display = "grid";
+    document.getElementById("newFormMsg").style.display = "none";
+    // لا نمسح الحقول هنا
   }
-  if(type === "ok"){
-    msg.style.borderColor = "#bbf7d0";
-    msg.style.background = "#ecfdf5";
-    msg.style.color = "#166534";
-  }
-  msg.textContent = text;
-}
-
-// ---------- api ----------
-async function safeJson(res){
-  const ct = (res.headers.get("content-type") || "").toLowerCase();
-  const text = await res.text();
-  if (!ct.includes("application/json")) {
-    throw new Error("NOT_JSON::" + text.slice(0, 120));
-  }
-  try { return JSON.parse(text); } catch { throw new Error("BAD_JSON"); }
-}
-
-async function apiGetForms(){
-  const res = await fetch("/api/forms-list", {
-    credentials: "include",
-    cache: "no-store",
-    headers: { "Accept": "application/json" }
-  });
-  const data = await safeJson(res);
-  if(!res.ok || !data.ok) throw new Error(data.error || "FORMS_FAILED");
-  return data.rows || [];
-}
-
-async function apiCreateForm(payload){
-  const res = await fetch("/api/forms-create", {
-    method: "POST",
-    credentials: "include",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      "Accept": "application/json"
-    },
-    body: JSON.stringify(payload)
-  });
-  const data = await safeJson(res);
-  if(!res.ok || !data.ok) throw new Error(data.error || "CREATE_FAILED");
-  return data.form; // لازم API يرجّع { form: {id,name,slug,...} }
-}
-
-// ---------- rendering ----------
-function renderFormsGrid(){
-  const grid = document.getElementById("formsGrid");
-
-  const createCard = `
-    <div class="form-card create-card" id="createCard">
-      <div class="create-icon">+</div>
-      <div class="form-title">إنشاء نموذج</div>
-      <div class="create-hint">ابدئي نموذج جديد، وبعدها تقدري تفتحيه وتتابعي إحصائياته من هنا.</div>
-    </div>
-  `;
-
-  if(!FORMS_CACHE.length){
-    grid.innerHTML = createCard + `
-      <div class="form-card" style="grid-column:span 8">
-        <div class="form-title">لا يوجد نماذج بعد</div>
-        <div class="create-hint">اضغطي “إنشاء نموذج” للبدء.</div>
-      </div>
-    `;
-    document.getElementById("createCard").addEventListener("click", openModal);
-    return;
+  function closeModal(){
+    document.getElementById("modalBack").style.display = "none";
   }
 
-  const cards = FORMS_CACHE.map(f => {
-    const active = Number(f.id) === Number(CURRENT_FORM_ID);
-    return `
-      <div class="form-card ${active ? "active" : ""}">
-        <div class="form-title">${f.name}</div>
-        <div class="form-slug">${f.slug}</div>
-        <div class="form-actions">
-          <button class="primary" data-open="${f.id}">فتح</button>
-          <button data-stats="${f.id}">الإحصائيات</button>
-          <button data-copy="${f.id}">نسخ الرابط</button>
-        </div>
-      </div>
-    `;
-  }).join("");
+  // ---------------- UI: forms grid ----------------
+  function renderForms(){
+    const grid = document.getElementById("formsGrid");
 
-  grid.innerHTML = createCard + cards;
-
-  // events
-  document.getElementById("createCard").addEventListener("click", openModal);
-
-  grid.querySelectorAll("[data-open]").forEach(btn=>{
-    btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-open");
-      window.open(`/?form_id=${encodeURIComponent(id)}`, "_blank");
-    });
-  });
-
-  grid.querySelectorAll("[data-stats]").forEach(btn=>{
-    btn.addEventListener("click", async () => {
-      const id = Number(btn.getAttribute("data-stats"));
-      CURRENT_FORM_ID = id;
-      localStorage.setItem("current_form_id", String(id));
-      renderFormsGrid();
-      // لو عندك قسم إحصائيات مخفي/تبويب، استدعيه هنا:
-      // await loadDashboardStats();
-    });
-  });
-
-  grid.querySelectorAll("[data-copy]").forEach(btn=>{
-    btn.addEventListener("click", async () => {
-      const id = btn.getAttribute("data-copy");
-      const link = `${location.origin}/?form_id=${encodeURIComponent(id)}`;
-      await navigator.clipboard.writeText(link);
-      const old = btn.textContent;
-      btn.textContent = "تم النسخ ✅";
-      setTimeout(()=> btn.textContent = old, 900);
-    });
-  });
-}
-
-// ---------- create form (FIXED UX) ----------
-async function createForm(){
-  const nameEl = document.getElementById("newFormName");
-  const slugEl = document.getElementById("newFormSlug");
-  const btn = document.getElementById("btnCreateForm");
-
-  const name = nameEl.value.trim();
-  const slug = slugEl.value.trim(); // اختياري
-
-  if(!name){
-    showMsg("اكتبي اسم النموذج.", "err");
-    return;
-  }
-
-  // ✅ قفل الزر مؤقتاً
-  btn.disabled = true;
-  btn.style.opacity = "0.7";
-  showMsg("جارٍ إنشاء النموذج...", "info");
-
-  try{
-    const form = await apiCreateForm({ name, slug });
-
-    // ✅ أضفيه مباشرة كبطاقة (بدون ما ينتظر تحديث الصفحة)
-    // نخليه أول القائمة بعد بطاقة (+)
-    FORMS_CACHE = [
-      form,
-      ...FORMS_CACHE.filter(f => Number(f.id) !== Number(form.id))
-    ];
-
-    CURRENT_FORM_ID = Number(form.id);
-    localStorage.setItem("current_form_id", String(CURRENT_FORM_ID));
-
-    renderFormsGrid();
-
-    showMsg(`✅ تم إنشاء النموذج: ${form.name}`, "ok");
-
-    // ✅ افتحي صفحة النموذج مباشرة
-    window.open(`/?form_id=${encodeURIComponent(form.id)}`, "_blank");
-
-    // ✅ اقفلي المودال بدون ما تمسحي slug (لكن تبيها تتصفّر بعد نجاح؟)
-    // هنا نخليها تتصفّر بعد نجاح فقط
-    nameEl.value = "";
-    slugEl.value = "";
-
-    setTimeout(closeModal, 350);
-
-  } catch (e) {
-    const msg = String(e.message || e);
-
-    // ✅ رسائل صديقة + لا نمسح slug
-    if (msg.includes("NAME_EXISTS") || msg.includes("NAME_DUPLICATE") || msg.includes("name exists") || msg.includes("اسم موجود")) {
-      showMsg("اسم النموذج موجود مسبقاً. اختاري اسم مختلف.", "err");
-    } else if (msg.includes("SLUG_EXISTS")) {
-      showMsg("الـ Slug مستخدم مسبقاً. غيّريه أو اتركيه فاضي.", "err");
-    } else if (msg.includes("UNAUTHORIZED")) {
-      showMsg("غير مصرح. تأكدي أن Access مفعل لمسار /api/forms-create.", "err");
-    } else if (msg.startsWith("NOT_JSON::")) {
-      showMsg("رجّع صفحة HTML بدل JSON (غالباً Access). تأكدي من Policy لمسار /api/forms-create.", "err");
-    } else {
-      showMsg("فشل إنشاء النموذج. " + msg, "err");
-    }
-
-  } finally {
-    btn.disabled = false;
-    btn.style.opacity = "1";
-  }
-}
-
-// ---------- boot ----------
-(async function init(){
-  document.getElementById("btnNewForm").addEventListener("click", openModal);
-  document.getElementById("btnCloseModal").addEventListener("click", closeModal);
-  document.getElementById("modalBack").addEventListener("click", (e)=>{ if(e.target.id === "modalBack") closeModal(); });
-  document.getElementById("btnCreateForm").addEventListener("click", createForm);
-
-  // تحميل النماذج أول ما تفتح الداشبورد
-  try{
-    FORMS_CACHE = await apiGetForms();
-    // حددي النموذج الحالي (آخر اختيار أو أول نموذج)
-    const saved = localStorage.getItem("current_form_id");
-    const first = FORMS_CACHE[0]?.id;
-    CURRENT_FORM_ID = Number(saved || first || 0) || null;
-
-    renderFormsGrid();
-  } catch (e) {
-    console.log(e);
-    document.getElementById("formsGrid").innerHTML = `
+    const createCard = `
       <div class="form-card create-card" id="createCard">
         <div class="create-icon">+</div>
         <div class="form-title">إنشاء نموذج</div>
-        <div class="create-hint">ابدئي نموذج جديد.</div>
-      </div>
-      <div class="form-card" style="grid-column:span 8">
-        <div class="form-title">تعذر تحميل النماذج</div>
-        <div class="create-hint">تأكدي من صلاحيات Cloudflare Access لمسار /api/forms-list</div>
+        <div class="create-hint">ابدئي نموذج جديد، وبعدها افتحيه وعدّلي الحقول وشوفي الإحصائيات من داخل النموذج.</div>
       </div>
     `;
+
+    const cards = FORMS.map(f => {
+      const active = Number(f.id) === Number(CURRENT_FORM_ID);
+      return `
+        <div class="form-card ${active ? "active" : ""}" data-card="${f.id}">
+          <div class="form-title">${f.name}</div>
+          <div class="form-slug">${f.slug}</div>
+          <div class="actions" onclick="event.stopPropagation()">
+            <button class="btn primary" data-open="${f.id}" type="button">فتح</button>
+            <button class="btn" data-copy="${f.id}" type="button">نسخ</button>
+            <button class="btn danger" data-delete="${f.id}" type="button">حذف</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    grid.innerHTML = createCard + (cards || `
+      <div class="form-card" style="grid-column:span 8;cursor:default">
+        <div class="form-title">لا يوجد نماذج بعد</div>
+        <div class="create-hint">اضغطي “إنشاء نموذج” للبدء.</div>
+      </div>
+    `);
+
     document.getElementById("createCard").addEventListener("click", openModal);
+
+    // click on card => open panel + default edit tab
+    grid.querySelectorAll("[data-card]").forEach(card=>{
+      card.addEventListener("click", () => {
+        const id = Number(card.getAttribute("data-card"));
+        selectForm(id);
+      });
+    });
+
+    // buttons
+    grid.querySelectorAll("[data-open]").forEach(btn=>{
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-open");
+        window.open(`/?form_id=${encodeURIComponent(id)}`, "_blank");
+      });
+    });
+
+    grid.querySelectorAll("[data-copy]").forEach(btn=>{
+      btn.addEventListener("click", async () => {
+        const id = btn.getAttribute("data-copy");
+        const link = formPublicLinkById(id);
+        await navigator.clipboard.writeText(link);
+        const old = btn.textContent;
+        btn.textContent = "تم ✅";
+        setTimeout(()=> btn.textContent = old, 900);
+      });
+    });
+
+    grid.querySelectorAll("[data-delete]").forEach(btn=>{
+      btn.addEventListener("click", async () => {
+        const id = Number(btn.getAttribute("data-delete"));
+        const f = findForm(id);
+        if(!f) return;
+
+        const ok = confirm(`تأكيد حذف النموذج:\n${f.name}`);
+        if(!ok) return;
+
+        btn.disabled = true;
+        try{
+          await apiDeleteForm(id);
+          // remove locally
+          FORMS = FORMS.filter(x => Number(x.id) !== Number(id));
+          if (Number(CURRENT_FORM_ID) === Number(id)) {
+            CURRENT_FORM_ID = FORMS[0]?.id ? Number(FORMS[0].id) : null;
+            localStorage.setItem("current_form_id", String(CURRENT_FORM_ID || ""));
+            hidePanel();
+          }
+          renderForms();
+        }catch(e){
+          alert("فشل الحذف: " + (e.message || e));
+        }finally{
+          btn.disabled = false;
+        }
+      });
+    });
   }
-})();
+
+  function pickInitialCurrent(){
+    const saved = localStorage.getItem("current_form_id");
+    const first = FORMS[0]?.id;
+    CURRENT_FORM_ID = Number(saved || first || 0) || null;
+
+    if (CURRENT_FORM_ID && !FORMS.some(f => Number(f.id) === Number(CURRENT_FORM_ID))) {
+      CURRENT_FORM_ID = Number(first || 0) || null;
+      localStorage.setItem("current_form_id", String(CURRENT_FORM_ID || ""));
+    }
+  }
+
+  // ---------------- UI: panel ----------------
+  function showPanel(){
+    document.getElementById("panel").classList.add("show");
+    document.getElementById("panel").scrollIntoView({ behavior:"smooth", block:"start" });
+  }
+  function hidePanel(){
+    document.getElementById("panel").classList.remove("show");
+  }
+
+  function setTab(tab){
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelector(`.tab[data-tab="${tab}"]`)?.classList.add("active");
+
+    document.getElementById("tabEdit").style.display = (tab === "edit") ? "block" : "none";
+    document.getElementById("tabStats").style.display = (tab === "stats") ? "block" : "none";
+  }
+
+  async function selectForm(id){
+    const f = findForm(id);
+    if(!f) return;
+
+    CURRENT_FORM_ID = Number(id);
+    localStorage.setItem("current_form_id", String(CURRENT_FORM_ID));
+
+    renderForms();
+
+    // header panel
+    document.getElementById("panelTitle").textContent = f.name;
+    document.getElementById("panelMeta").textContent = `ID: ${f.id} • ${f.slug}`;
+
+    // panel buttons
+    document.getElementById("btnOpenPublic").onclick = () => window.open(`/?form_id=${encodeURIComponent(f.id)}`, "_blank");
+    document.getElementById("btnCopyPublic").onclick = async () => {
+      await navigator.clipboard.writeText(formPublicLinkById(f.id));
+      alert("تم نسخ الرابط ✅");
+    };
+    document.getElementById("btnDeleteForm").onclick = async () => {
+      const ok = confirm(`تأكيد حذف النموذج:\n${f.name}`);
+      if(!ok) return;
+      try{
+        await apiDeleteForm(f.id);
+        FORMS = FORMS.filter(x => Number(x.id) !== Number(f.id));
+        hidePanel();
+        renderForms();
+      }catch(e){
+        alert("فشل الحذف: " + (e.message || e));
+      }
+    };
+
+    // default tab edit
+    setTab("edit");
+    showPanel();
+  }
+
+  // ---------------- UI: stats ----------------
+  async function loadStats(){
+    const f = findForm(CURRENT_FORM_ID);
+    if(!f) return;
+
+    document.getElementById("statsLoading").style.display = "block";
+    document.getElementById("statsContent").style.display = "none";
+
+    try{
+      const data = await apiStats(f.id);
+
+      document.getElementById("sTotal").textContent = num(data?.cards?.total ?? 0);
+      document.getElementById("sConfirmed").textContent = num(data?.cards?.confirmed ?? 0);
+      document.getElementById("sPending").textContent = num(data?.cards?.pending ?? 0);
+      document.getElementById("sCanceled").textContent = num(data?.cards?.canceled ?? 0);
+
+      const byCity = data.byCity || [];
+      document.getElementById("cityHint").textContent = `Cities: ${num(byCity.length)}`;
+
+      const citiesGrid = document.getElementById("citiesGrid");
+      citiesGrid.innerHTML = byCity.map(c => {
+        const total = Number(c.total || 0);
+        const confirmed = Number(c.confirmed || 0);
+        const percent = total ? Math.round((confirmed / total) * 100) : 0;
+        return `
+          <div class="city-card">
+            <div class="city-name">${c.city || "-"}</div>
+            <div class="circle" style="--p:${percent}">${percent}%</div>
+            <div class="city-meta">
+              <span>Confirmed: ${num(confirmed)}</span>
+              <span>Total: ${num(total)}</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      const latest = data.latest || [];
+      document.getElementById("latestBody").innerHTML = latest.map(r => `
+        <tr>
+          <td data-label="#">${num(r.id)}</td>
+          <td data-label="الاسم">${r.name || "-"}</td>
+          <td data-label="المدينة">${r.city || "-"}</td>
+          <td data-label="Status">${statusBadge(r.status)}</td>
+          <td data-label="Date">${fmtDate(r.created_at)}</td>
+        </tr>
+      `).join("");
+
+      document.getElementById("statsLoading").style.display = "none";
+      document.getElementById("statsContent").style.display = "block";
+    }catch(e){
+      document.getElementById("statsLoading").textContent = "تعذر تحميل الإحصائيات.";
+      console.log(e);
+    }
+  }
+
+  // ---------------- create form ----------------
+  async function createForm(){
+    const nameEl = document.getElementById("newFormName");
+    const slugEl = document.getElementById("newFormSlug");
+    const btn = document.getElementById("btnCreateForm");
+
+    const name = nameEl.value.trim();
+    const slug = slugEl.value.trim(); // اختياري
+
+    if(!name){
+      showMsg("اكتبي اسم النموذج.", "err");
+      return;
+    }
+
+    btn.disabled = true;
+    btn.style.opacity = "0.7";
+    showMsg("جارٍ إنشاء النموذج...", "info");
+
+    try{
+      const form = await apiCreateForm({ name, slug });
+
+      // أضيفيه فوراً كأول بطاقة بعد + (بدون ما ينتظر refresh)
+      FORMS = [form, ...FORMS.filter(f => Number(f.id) !== Number(form.id))];
+
+      CURRENT_FORM_ID = Number(form.id);
+      localStorage.setItem("current_form_id", String(CURRENT_FORM_ID));
+
+      renderForms();
+
+      showMsg(`✅ تم إنشاء النموذج: ${form.name}`, "ok");
+
+      // افتحي الفورم مباشرة
+      window.open(`/?form_id=${encodeURIComponent(form.id)}`, "_blank");
+
+      // صفّري فقط بعد النجاح
+      nameEl.value = "";
+      slugEl.value = "";
+      setTimeout(closeModal, 300);
+
+    }catch(e){
+      const msg = String(e.message || e);
+
+      if(msg.includes("NAME_EXISTS") || msg.includes("اسم موجود") || msg.includes("DUPLICATE")){
+        showMsg("اسم النموذج موجود مسبقاً. اختاري اسم مختلف.", "err");
+      }else if(msg.includes("SLUG_EXISTS")){
+        showMsg("الـ Slug مستخدم مسبقاً. غيّريه أو اتركيه فاضي.", "err");
+      }else if(msg.startsWith("NOT_JSON::")){
+        showMsg("رجّع صفحة HTML بدل JSON (غالباً Cloudflare Access).", "err");
+      }else{
+        showMsg("فشل إنشاء النموذج: " + msg, "err");
+      }
+    }finally{
+      btn.disabled = false;
+      btn.style.opacity = "1";
+    }
+  }
+
+  // ---------------- boot ----------------
+  (async function init(){
+    // modal wiring
+    document.getElementById("modalBack").addEventListener("click", (e)=>{ if(e.target.id === "modalBack") closeModal(); });
+    document.getElementById("btnCloseModal").addEventListener("click", closeModal);
+    document.getElementById("btnCreateForm").addEventListener("click", createForm);
+
+    // tabs
+    document.querySelectorAll(".tab").forEach(t => {
+      t.addEventListener("click", async () => {
+        const tab = t.getAttribute("data-tab");
+        setTab(tab);
+        if(tab === "stats"){
+          await loadStats();
+        }
+      });
+    });
+
+    // header (user)
+    const user = await apiMe();
+    document.getElementById("hello").textContent = `مرحباً بك، ${user.name} 👋`;
+    document.getElementById("updated").textContent = `Last update: ${new Date().toLocaleString("en-US")}`;
+    document.getElementById("userEmail").textContent = user.email || "—";
+
+    // load forms
+    try{
+      FORMS = await apiFormsList();
+      pickInitialCurrent();
+      renderForms();
+    }catch(e){
+      console.log(e);
+      document.getElementById("formsGrid").innerHTML = `
+        <div class="form-card create-card" id="createCard">
+          <div class="create-icon">+</div>
+          <div class="form-title">إنشاء نموذج</div>
+          <div class="create-hint">ابدئي نموذج جديد.</div>
+        </div>
+        <div class="form-card" style="grid-column:span 8;cursor:default">
+          <div class="form-title">تعذر تحميل النماذج</div>
+          <div class="create-hint">تأكدي من صلاحيات Cloudflare Access لمسار /api/forms-list</div>
+        </div>
+      `;
+      document.getElementById("createCard").addEventListener("click", openModal);
+      return;
+    }
+
+    // create card click
+    document.getElementById("formsGrid").addEventListener("click", (e) => {
+      const create = e.target.closest("#createCard");
+      if (create) openModal();
+    });
+
+    // bind create card now (after first render)
+    // (renderForms sets it too, but this is harmless)
+
+  })();
 
 </script>
 
