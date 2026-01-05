@@ -518,11 +518,16 @@ ${confirmUrl}`
 
   // ✅ مهم: المسار الصحيح حسب شجرتك هو /api/forms-list
   async function apiGetForms(){
-    const res = await fetch("/api/forms-list", { credentials:"include", cache:"no-store", headers:{ "Accept":"application/json" } });
-    const data = await safeJson(res);
-    if(!res.ok || !data.ok) throw new Error(data.error || "FORMS_FAILED");
-    return data.forms || [];
-  }
+  const res = await fetch("/api/forms-list", {
+    credentials:"include",
+    cache:"no-store",
+    headers:{ "Accept":"application/json" }
+  });
+  const data = await safeJson(res);
+  if(!res.ok || !data.ok) throw new Error(data.error || "FORMS_FAILED");
+  return data.rows || [];   // ✅ هنا التغيير
+}
+
 
   async function apiGetStats(formId){
     const res = await fetch(`/api/stats?form_id=${encodeURIComponent(formId)}`, { credentials:"include", cache:"no-store", headers:{ "Accept":"application/json" } });
@@ -531,17 +536,32 @@ ${confirmUrl}`
   }
 
   async function apiCreateForm(payload){
-    const res = await fetch("/api/forms-create", {
-      method:"POST",
-      credentials:"include",
-      cache:"no-store",
-      headers:{ "Content-Type":"application/json", "Accept":"application/json" },
-      body: JSON.stringify(payload)
-    });
-    const data = await safeJson(res);
-    if(!res.ok || !data.ok) throw new Error(data.error || "CREATE_FAILED");
-    return data.form;
+  const res = await fetch("/api/forms-create", {
+    method:"POST",
+    credentials:"include",
+    cache:"no-store",
+    headers:{
+      "Content-Type":"application/json",
+      "Accept":"application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  // لو Cloudflare Access رجّع HTML
+  const ct = (res.headers.get("content-type") || "").toLowerCase();
+  const text = await res.text();
+
+  if(!ct.includes("application/json")){
+    throw new Error("ACCESS_OR_ROUTE_HTML");
   }
+
+  const data = JSON.parse(text);
+  if(!res.ok || !data.ok){
+    throw new Error(data.error || `HTTP_${res.status}`);
+  }
+  return data.form;
+}
+
 
   // ---------- auth/user ----------
   async function loadUser(){
