@@ -772,6 +772,69 @@ ${confirmUrl}`
     setTimeout(closeModal, 450);
   }
 
+  async function safeJson(res){
+  const ct = (res.headers.get("content-type") || "").toLowerCase();
+  const text = await res.text();
+  if (!ct.includes("application/json")) {
+    // هذا غالباً HTML من Cloudflare Access أو Redirect
+    throw new Error("NOT_JSON::" + text.slice(0, 120));
+  }
+  try { return JSON.parse(text); } catch { throw new Error("BAD_JSON"); }
+}
+
+async function apiGetForms(){
+  const url = `${location.origin}/api/forms`;
+  const res = await fetch(url, {
+    credentials: "include",
+    cache: "no-store",
+    headers: { "Accept": "application/json" }
+  });
+
+  if (res.redirected) {
+    // غالباً راح صفحة Access
+    throw new Error("REDIRECTED_TO_ACCESS");
+  }
+
+  const data = await safeJson(res);
+  if(!res.ok || !data.ok) throw new Error(data.error || "FORMS_FAILED");
+  return data.forms || [];
+}
+
+async function apiGetStats(formId){
+  const url = `${location.origin}/api/stats?form_id=${encodeURIComponent(formId)}`;
+  const res = await fetch(url, {
+    credentials: "include",
+    cache: "no-store",
+    headers: { "Accept": "application/json" }
+  });
+
+  if (res.redirected) throw new Error("REDIRECTED_TO_ACCESS");
+
+  const data = await safeJson(res);
+  if(!res.ok) throw new Error(data.error || "STATS_FAILED");
+  return data;
+}
+
+async function apiCreateForm(payload){
+  const url = `${location.origin}/api/forms-create`;
+  const res = await fetch(url, {
+    method: "POST",
+    credentials: "include",
+    cache: "no-store",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (res.redirected) throw new Error("REDIRECTED_TO_ACCESS");
+
+  const data = await safeJson(res);
+  if(!res.ok || !data.ok) throw new Error(data.error || "CREATE_FAILED");
+  return data.form;
+}
+
   // ---------- boot ----------
   (async function init(){
     // wire modal
@@ -813,8 +876,15 @@ ${confirmUrl}`
         </div>
       `;
       document.getElementById("createCard").addEventListener("click", openModal);
+
+      document.getElementById("formsHint").textContent =
+    "تعذر تحميل النماذج. افتحي /api/forms في نفس المتصفح لتأكيد Cloudflare Access.";
+  console.error("FORMS_LOAD_ERROR:", e);
+  showToast("فشل تحميل النماذج");
     }
   })();
+
+  
 </script>
 
 </body>
