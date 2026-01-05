@@ -298,6 +298,30 @@
       background:#fafafa;
       font-weight:900;
     }
+
+    .form-card{
+  grid-column: span 4;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:14px;
+  box-shadow: 0 6px 16px rgba(17,24,39,.05);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.form-title{font-weight:900;font-size:15px}
+.form-slug{color:var(--muted);font-size:12px;direction:ltr;text-align:left}
+.form-actions{display:flex;gap:8px;flex-wrap:wrap}
+.form-actions button{
+  padding:8px 10px;border-radius:12px;border:1px solid var(--border);
+  background:#fafafa;cursor:pointer;font-weight:900;font-family:inherit;
+}
+.form-actions button.primary{background:#fff;color:var(--brand);border-color:#e9d5ff}
+.form-actions button:hover{filter:brightness(.98)}
+@media (max-width:980px){ .form-card{grid-column:span 6;} }
+@media (max-width:640px){ .form-card{grid-column:span 12;} }
+
   </style>
 </head>
 
@@ -320,6 +344,13 @@
         <button class="btn white" id="btnOpenForm" type="button">فتح الفورم</button>
       </div>
     </div>
+
+    <div class="section-title" style="margin-top:18px">
+  <h2>نماذجي</h2>
+  <div class="sub">اختاري نموذج لإدارة إحصائياته أو افتحيه</div>
+</div>
+
+<div class="grid" id="formsGrid"></div>
 
     <!-- Stats -->
     <div class="grid">
@@ -523,7 +554,60 @@ ${confirmUrl}`
       localStorage.setItem("current_form_id", String(CURRENT_FORM_ID));
       loadDashboard();
     });
+    renderFormsGrid(forms);
+
   }
+
+function renderFormsGrid(forms){
+  const grid = document.getElementById("formsGrid");
+  if(!grid) return;
+
+  grid.innerHTML = forms.map(f => {
+    const isCurrent = Number(f.id) === Number(CURRENT_FORM_ID);
+    return `
+      <div class="form-card" style="${isCurrent ? "border-color:#c4b5fd" : ""}">
+        <div class="form-title">${f.name}</div>
+        <div class="form-slug">${f.slug}</div>
+
+        <div class="form-actions">
+          <button class="primary" data-open="${f.id}">فتح</button>
+          <button data-select="${f.id}">الإحصائيات</button>
+          <button data-copy="${f.id}">نسخ الرابط</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // events
+  grid.querySelectorAll("[data-open]").forEach(btn=>{
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-open");
+      window.open(`/?form_id=${encodeURIComponent(id)}`, "_blank");
+    });
+  });
+
+  grid.querySelectorAll("[data-select]").forEach(btn=>{
+    btn.addEventListener("click", () => {
+      const id = Number(btn.getAttribute("data-select"));
+      CURRENT_FORM_ID = id;
+      localStorage.setItem("current_form_id", String(id));
+      document.getElementById("formSelect").value = String(id);
+      renderFormsGrid(FORMS_CACHE);
+      loadDashboard();
+    });
+  });
+
+  grid.querySelectorAll("[data-copy]").forEach(btn=>{
+    btn.addEventListener("click", async () => {
+      const id = btn.getAttribute("data-copy");
+      const link = `${location.origin}/?form_id=${encodeURIComponent(id)}`;
+      await navigator.clipboard.writeText(link);
+      btn.textContent = "تم النسخ ✅";
+      setTimeout(()=> btn.textContent = "نسخ الرابط", 900);
+    });
+  });
+}
+
 
   function getCurrentForm(){
     return FORMS_CACHE.find(f => Number(f.id) === Number(CURRENT_FORM_ID));
