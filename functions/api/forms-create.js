@@ -1,5 +1,5 @@
 function getAccessEmail(request) {
-  // Cloudflare Access identity headers (قد تختلف حسب البيئة/الإعداد)
+  // Cloudflare Access identity headers (قد تختلgف حسب البيئة/الإعداد)
   const candidates = [
     "cf-access-authenticated-user-email",
     "Cf-Access-Authenticated-User-Email",
