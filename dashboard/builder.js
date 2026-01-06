@@ -257,8 +257,9 @@ function renderCanvas() {
           style="font-weight:800;border:1px solid #dfe3ee;padding:10px;border-radius:10px;background:#fff;" />
 
         <div class="small muted" style="margin-top:6px;">
-          key: <b>${esc(key)}</b> • <span class="tag">${esc(f.field_type)}</span>
-        </div>
+  <span class="tag">${esc(f.field_type)}</span>
+</div>
+
 
         <div class="row" style="margin-top:10px; justify-content:space-between;">
           <label style="margin:0;display:flex;gap:8px;align-items:center;">
@@ -401,9 +402,6 @@ function renderProps() {
     <label>العنوان (Label)</label>
     <input id="p_label" value="${esc(f.label)}" />
 
-    <label>المفتاح (key)</label>
-    <input id="p_key" value="${esc(key)}" />
-    <div class="small muted">يفضل إنجليزي بدون مسافات.</div>
 
     <label>Placeholder</label>
     <input id="p_ph" value="${esc(placeholder)}" />
@@ -422,13 +420,11 @@ function renderProps() {
 
   $("#p_save").onclick = async () => {
     const newLabel = $("#p_label").value.trim();
-    const newKey = $("#p_key").value.trim();
     const newPh = $("#p_ph").value || "";
     const newType = $("#p_type").value;
 
     await updateField(f.id, {
       label: newLabel,
-      field_key: newKey,
       placeholder: newPh,
       type: newType,
     });
