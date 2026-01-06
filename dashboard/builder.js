@@ -131,53 +131,41 @@ function renderLibrary() {
   const search = document.getElementById("libSearch");
   const q = (search?.value || "").trim();
 
-  
-  search.placeholder = "بحث عن نوع الحقل...";
-  search.style.marginBottom = "10px";
-  root.appendChild(search);
+  const items = libraryItems().filter(x =>
+    !q || x.label.includes(q) || x.type.includes(q)
+  );
 
-  const groupsWrap = document.createElement("div");
-  root.appendChild(groupsWrap);
+  // group
+  const groups = {};
+  items.forEach(it => {
+    groups[it.group] = groups[it.group] || [];
+    groups[it.group].push(it);
+  });
 
-  function draw(q = "") {
-    groupsWrap.innerHTML = "";
-    const items = libraryItems().filter((x) =>
-      !q ? true : (x.label.includes(q) || x.type.includes(q))
-    );
+  Object.keys(groups).forEach((g) => {
+    const h = document.createElement("div");
+    h.className = "small muted";
+    h.style.margin = "8px 0 6px";
+    h.textContent = g;
+    root.appendChild(h);
 
-    const groups = {};
-    items.forEach((it) => {
-      groups[it.group] = groups[it.group] || [];
-      groups[it.group].push(it);
+    groups[g].forEach((it) => {
+      const btn = document.createElement("button");
+      btn.className = "btn lib-item";
+      btn.type = "button";
+      btn.textContent = `+ ${it.label}`;
+      btn.onclick = () => addFieldFromTemplate(it);
+      root.appendChild(btn);
     });
+  });
 
-    Object.keys(groups).forEach((g) => {
-      const h = document.createElement("div");
-      h.className = "small muted";
-      h.style.margin = "8px 0 6px";
-      h.textContent = g;
-      groupsWrap.appendChild(h);
-
-      groups[g].forEach((it) => {
-        const btn = document.createElement("button");
-        btn.className = "btn lib-item";
-        btn.type = "button";
-        btn.textContent = `+ ${it.label}`;
-        btn.onclick = () => addFieldFromTemplate(it);
-        groupsWrap.appendChild(btn);
-      });
-    });
-
-    const hint = document.createElement("div");
-    hint.className = "small muted";
-    hint.style.marginTop = "10px";
-    hint.textContent = "اضغطي + لإضافة سؤال مباشرة، ثم عدّلي العنوان/الخصائص.";
-    groupsWrap.appendChild(hint);
-  }
-
-  draw("");
-  search.addEventListener("input", () => draw(search.value.trim()));
+  const hint = document.createElement("div");
+  hint.className = "small muted";
+  hint.style.marginTop = "10px";
+  hint.textContent = "اضغطي + لإضافة سؤال مباشرة، ثم عدّلي العنوان/الخصائص.";
+  root.appendChild(hint);
 }
+
 
 /* ---------------- Update Helpers ---------------- */
 
