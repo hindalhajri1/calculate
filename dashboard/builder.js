@@ -1,4 +1,28 @@
 const $ = (s) => document.querySelector(s);
+function setToast(msg){
+  const t = document.getElementById("toast");
+  if(!t) return;
+  t.textContent = msg || "تم";
+  t.style.opacity = "1";
+  setTimeout(()=> t.style.opacity="0", 900);
+}
+
+function isMobileUI(){
+  return window.matchMedia("(max-width: 860px)").matches;
+}
+
+function bindTabs(){
+  const tabs = document.querySelectorAll(".tabbtn");
+  tabs.forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      tabs.forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      const id = btn.getAttribute("data-tab");
+      document.querySelectorAll(".tabpane").forEach(p=>p.classList.remove("active"));
+      document.getElementById(id)?.classList.add("active");
+    });
+  });
+}
 
 const state = {
   form_id: null,
@@ -101,10 +125,13 @@ async function addFieldFromTemplate(tpl) {
 }
 
 function renderLibrary() {
-  const root = $("#library");
+  const root = document.getElementById("library");
   root.innerHTML = "";
 
-  const search = document.createElement("input");
+  const search = document.getElementById("libSearch");
+  const q = (search?.value || "").trim();
+
+  
   search.placeholder = "بحث عن نوع الحقل...";
   search.style.marginBottom = "10px";
   root.appendChild(search);
@@ -441,13 +468,29 @@ async function loadAll() {
   state.form = r.form;
   state.fields = r.fields || [];
   $("#formTitle").textContent = `${state.form?.name || "محرر النموذج"} (ID: ${state.form_id})`;
+
+  document.getElementById("canvasMeta").textContent = `ID: ${state.form_id} • الحقول: ${state.fields.length}`;
+document.getElementById("mCanvasMeta").textContent = `الحقول: ${state.fields.length}`;
+
+}
+
+function syncMobile(){
+  const mLib = document.getElementById("mLibrary");
+  const mCanvas = document.getElementById("mCanvas");
+  const mProps = document.getElementById("mProps");
+
+  if(mLib) mLib.innerHTML = document.getElementById("library")?.innerHTML || "";
+  if(mCanvas) mCanvas.innerHTML = document.getElementById("canvas")?.innerHTML || "";
+  if(mProps) mProps.innerHTML = document.getElementById("props")?.innerHTML || "";
 }
 
 function renderAll() {
   renderLibrary();
   renderCanvas();
   renderProps();
+  syncMobile();
 }
+
 
 async function init() {
   state.form_id = getFormId();
@@ -461,6 +504,24 @@ async function init() {
 
   await loadAll();
   renderAll();
+
+  document.getElementById("btnAddQuick")?.addEventListener("click", ()=>{
+    document.getElementById("libSearch")?.focus?.();
+  });
+  
+  document.getElementById("mBtnAddQuick")?.addEventListener("click", ()=>{
+    // يفتح تبويب الحقول ثم يركز البحث
+    document.querySelector('[data-tab="tabLibrary"]')?.click();
+    document.getElementById("mLibSearch")?.focus?.();
+  });
+  
+  document.getElementById("btnPreview")?.addEventListener("click", ()=>{
+    const id = state.form_id;
+    window.open(`/?form_id=${encodeURIComponent(id)}`, "_blank");
+  });
+  
+  bindTabs();
+  
 }
 
 init().catch((e) => { console.error(e); alert("خطأ: " + (e.message || e)); });
