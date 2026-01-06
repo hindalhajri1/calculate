@@ -238,23 +238,7 @@ function renderCanvas() {
   const root = $("#canvas");
   root.innerHTML = "";
 
-  // Add button in canvas (Typeform-ish)
-  const addRow = document.createElement("div");
-  addRow.style.display = "flex";
-  addRow.style.justifyContent = "space-between";
-  addRow.style.alignItems = "center";
-  addRow.style.marginBottom = "10px";
-  addRow.innerHTML = `
-    <button class="btn primary" type="button" id="btnAddQuick">+ إضافة سؤال</button>
-    <div id="toast" class="small muted" style="opacity:0; transition:.2s;">تم</div>
-  `;
-  root.appendChild(addRow);
 
-  $("#btnAddQuick").onclick = () => {
-    // focus library search
-    const inp = $("#library input");
-    inp?.focus?.();
-  };
 
   if (!state.fields.length) {
     const empty = document.createElement("div");
