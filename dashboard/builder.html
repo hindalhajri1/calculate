@@ -155,18 +155,60 @@
       .page{padding:12px}
     }
 
-    .field-item{ position:relative; }
-.xbtn{
-    border:1px solid rgba(17,24,39,.12);
-    background:#fff;
-    width:34px;height:34px;
-    border-radius:12px;
-    cursor:pointer;
-    font-weight:900;
-    line-height:1;
-  }
-  .xbtn:hover{border-color:#fecaca;color:#991b1b}
-  
+    .field-item{position:relative}
+    .xbtn{
+      border:1px solid rgba(17,24,39,.12);
+      background:#fff;
+      width:34px;height:34px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:900;
+      line-height:1;
+    }
+    .xbtn-left{
+      position:absolute;
+      left:12px;   /* يسار الصندوق */
+      top:12px;
+    }
+    .xbtn:hover{border-color:#fecaca;color:#991b1b}
+ے    
+
+  .titleRow{display:flex;align-items:center;gap:10px}
+.iconbtn{
+  border:1px solid rgba(255,255,255,.35);
+  background:rgba(255,255,255,.16);
+  color:#fff;
+  padding:8px 10px;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:900;
+  font-family:inherit;
+}
+.topTabs{
+  margin-top:10px;
+  display:flex;
+  gap:10px;
+  justify-content:flex-start;
+  flex-wrap:wrap;
+}
+.tabTop{
+  border:0;
+  background:#fff;
+  color:#111827;
+  font-weight:900;
+  font-family:inherit;
+  padding:10px 14px;
+  border-radius:999px;
+  cursor:pointer;
+  box-shadow:0 10px 18px rgba(0,0,0,.06);
+  border:1px solid rgba(17,24,39,.10);
+}
+.tabTop.active{
+  background:#111827;
+  color:#fff;
+  border-color:#111827;
+}
+
   </style>
 </head>
 
@@ -175,18 +217,26 @@
 
     <!-- TOP BAR -->
     <header class="topbar">
-      <div>
-        <h1>محرر النموذج</h1>
-        <div class="meta" id="formTitle">...</div>
+        <div>
+          <div class="titleRow">
+            <h1 id="formName">محرر النموذج</h1>
+            <button class="iconbtn" id="btnEditFormName" type="button" title="تعديل اسم النموذج">✎</button>
+          </div>
+          <div class="meta" id="formTitle">...</div>
+        </div>
+      
+        <div class="top-actions">
+          <button class="btn light" id="btnPreview" type="button">معاينة</button>
+          <button class="btn light" id="btnCopyLink" type="button">نسخ الرابط</button>
+        </div>
+      </header>
+      
+      <!-- Tabs تحت العنوان (مثل المرفق) -->
+      <div class="topTabs" id="topTabs">
+        <button class="tabTop active" data-view="builder" type="button">🧩 إدارة النموذج</button>
+        <button class="tabTop" data-view="stats" type="button">📊 الإحصائيات</button>
       </div>
-
-      <!-- ✅ هنا الأزرار اللي تبغينها في الأعلى -->
-      <div class="top-actions">
-        <button class="btn light" id="btnPreview" type="button">معاينة</button>
-        <button class="btn light" id="btnCopyLink" type="button">نسخ رابط النموذج</button>
-        <button class="btn light" id="btnStats" type="button">الإحصائيات</button>
-      </div>
-    </header>
+      
 
     <!-- DESKTOP -->
     <div class="grid" id="editorGrid">

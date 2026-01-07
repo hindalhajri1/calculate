@@ -224,70 +224,57 @@ function renderOptionsEditor(fieldRow, opt) {
   `;
 }
 
+
 function renderCanvas() {
   const root = $("#canvas");
   root.innerHTML = "";
 
-
-
   if (!state.fields.length) {
     const empty = document.createElement("div");
     empty.className = "small muted";
-    empty.textContent = "لا توجد حقول بعد. أضيفي من اليسار.";
+    empty.textContent = "لا توجد حقول بعد. أضيفي من اليمين.";
     root.appendChild(empty);
     return;
   }
 
   state.fields.forEach((f) => {
     const opt = parseOpt(f);
-    const key = opt.key || "";
 
     const el = document.createElement("div");
-    el.className = "field-item";
+    el.className = "field-item" + (state.selectedId === f.id ? " selected" : "");
     el.id = `field-${f.id}`;
     el.draggable = true;
 
-    const selected = state.selectedId === f.id;
-
-    el.style.borderColor = selected ? "#0b5fff" : "#eef0f6";
-    el.style.background = selected ? "#f5f8ff" : "#fff";
-
     el.innerHTML = `
-    <div class="field-head">
-      <div style="font-weight:900;">${esc(f.label)}</div>
-      <button class="xbtn" type="button" data-del title="حذف">×</button>
-    </div>
-  
-    <div class="divider"></div>
-  
-    <label>العنوان</label>
-    <input data-edit-label value="${esc(f.label)}" />
-  
-    <div class="row" style="margin-top:10px; justify-content:space-between;">
-      <label style="margin:0;display:flex;gap:8px;align-items:center;">
-        <input type="checkbox" data-required ${Number(f.required) === 1 ? "checked" : ""} style="width:auto;" />
-        <span class="small">مطلوب</span>
-      </label>
-      <span class="tag">${esc(f.field_type)}</span>
-    </div>
-  
-    ${renderOptionsEditor(f, opt)}
-  
-      </div>
-<div class="field-head">
-  <div style="font-weight:900;">${esc(f.label)}</div>
-  <button class="xbtn" type="button" data-del title="حذف">×</button>
-</div>
+      <button class="xbtn xbtn-left" type="button" data-del title="حذف">×</button>
 
+      <div class="field-meta" style="flex:1;">
+        <input data-edit-label value="${esc(f.label)}"
+          style="font-weight:900;border:1px solid #dfe3ee;padding:10px;border-radius:14px;background:#fff;" />
+
+        <div class="small muted" style="margin-top:8px;">
+          <span class="tag">${esc(f.field_type)}</span>
+        </div>
+
+        <div class="row" style="margin-top:10px;justify-content:space-between;">
+          <label style="margin:0;display:flex;gap:8px;align-items:center;">
+            <input type="checkbox" data-required ${Number(f.required) === 1 ? "checked" : ""} style="width:auto;" />
+            <span class="small">مطلوب</span>
+          </label>
+          <span class="small muted" style="cursor:grab;">⋮⋮</span>
+        </div>
+
+        ${renderOptionsEditor(f, opt)}
+      </div>
     `;
 
-    // select field card
+    // اختيار الحقل
     el.addEventListener("click", () => {
       state.selectedId = f.id;
       renderAll();
     });
 
-    // label update (debounced on blur/change)
+    // تعديل العنوان
     const labelInp = el.querySelector("[data-edit-label]");
     labelInp.addEventListener("click", (e) => e.stopPropagation());
     labelInp.addEventListener("change", async () => {
@@ -307,64 +294,18 @@ function renderCanvas() {
       renderAll();
     });
 
-    // options editor
-    const wrap = el.querySelector("[data-options-wrap]");
-    if (wrap) {
-      wrap.addEventListener("click", async (e) => {
-        e.stopPropagation();
-        const addBtn = e.target.closest("[data-opt-add]");
-        const delBtn = e.target.closest("[data-opt-del]");
-        if (addBtn) {
-          const newOpt = prompt("أضيفي خيار:", "");
-          if (!newOpt) return;
-          const cur = parseOpt(f);
-          const arr = Array.isArray(cur.options) ? cur.options : [];
-          arr.push(newOpt);
-          await updateField(f.id, { options: arr });
-          await loadAll(); renderAll();
-        }
-        if (delBtn) {
-          const idx = Number(delBtn.getAttribute("data-opt-del"));
-          const cur = parseOpt(f);
-          const arr = Array.isArray(cur.options) ? cur.options : [];
-          arr.splice(idx, 1);
-          await updateField(f.id, { options: arr });
-          await loadAll(); renderAll();
-        }
-      });
+    // حذف (مرة واحدة)
+    const delBtn = el.querySelector("[data-del]");
+    delBtn.addEventListener("click", async (ev) => {
+      ev.stopPropagation();
+      if (!confirm("تأكيد حذف الحقل نهائيًا؟")) return;
+      await api("/api/fields-delete", "POST", { id: f.id });
+      if (state.selectedId === f.id) state.selectedId = null;
+      await loadAll();
+      renderAll();
+    });
 
-      // input change
-      wrap.querySelectorAll("input[data-opt-idx]").forEach((inp) => {
-        inp.addEventListener("click", (e) => e.stopPropagation());
-        inp.addEventListener("change", async () => {
-          const idx = Number(inp.getAttribute("data-opt-idx"));
-          const cur = parseOpt(f);
-          const arr = Array.isArray(cur.options) ? cur.options : [];
-          arr[idx] = inp.value;
-          await updateField(f.id, { options: arr });
-          await loadAll(); renderAll();
-        });
-      });
-    }
-
-    // delete
-    // delete (آمن)
-const delBtn = el.querySelector("[data-del]");
-if (delBtn) {
-  delBtn.addEventListener("click", async (ev) => {
-    ev.stopPropagation();
-    if (!confirm("تأكيد حذف الحقل نهائيًا؟")) return;
-    await api("/api/fields-delete", "POST", { id: f.id });
-    if (state.selectedId === f.id) state.selectedId = null;
-    await loadAll();
-    renderAll();
-  });
-} else {
-  console.warn("delete button not found for field", f.id);
-}
-
-
-    // Drag reorder (محلي + autosave)
+    // Drag reorder
     el.addEventListener("dragstart", () => { state.draggingId = f.id; el.classList.add("dragging"); });
     el.addEventListener("dragend", () => { state.draggingId = null; el.classList.remove("dragging"); });
     el.addEventListener("dragover", (e) => e.preventDefault());
@@ -381,6 +322,8 @@ if (delBtn) {
     root.appendChild(el);
   });
 }
+
+
 
 function reorderLocal(fromId, toId) {
   const arr = [...state.fields];
@@ -449,8 +392,9 @@ async function loadAll() {
   const r = await api(`/api/form?form_id=${state.form_id}&t=${Date.now()}`);
   state.form = r.form;
   state.fields = r.fields || [];
-  $("#formTitle").textContent = `${state.form?.name || "محرر النموذج"} (ID: ${state.form_id})`;
-
+  const nameEl = document.getElementById("formName");
+  if (nameEl) nameEl.textContent = state.form?.name || "نموذج بدون اسم";
+  
  
 
 const canvasMeta = document.getElementById("canvasMeta");
@@ -536,12 +480,30 @@ async function init() {
     statsOpen = true;
   }
 
-  if (btnStats) {
-    btnStats.onclick = () => {
-      if (!editorGrid || !statsView) return; // ما يمنع التشغيل
-      statsOpen ? showEditor() : showStats();
-    };
+  function setView(view){
+    const editorGrid = document.getElementById("editorGrid");
+    const statsView  = document.getElementById("statsView");
+  
+    document.querySelectorAll(".tabTop").forEach(b=>{
+      b.classList.toggle("active", b.dataset.view === view);
+    });
+  
+    if (editorGrid) editorGrid.style.display = (view === "builder") ? "" : "none";
+    if (statsView)  statsView.style.display  = (view === "stats") ? "" : "none";
+  
+    if (view === "stats") {
+      const statsMeta = document.getElementById("statsMeta");
+      if (statsMeta) statsMeta.textContent = state.form?.name || "إحصائيات";
+    }
   }
+  
+  document.querySelectorAll(".tabTop").forEach(btn=>{
+    btn.addEventListener("click", ()=> setView(btn.dataset.view));
+  });
+  
+  // افتراضي
+  setView("builder");
+  
 
   // ✅ تحميل البيانات ثم رسم الواجهة
   await loadAll();
@@ -549,6 +511,24 @@ async function init() {
 
   // لو عندك تبويبات موبايل وتستخدمين bindTabs
   if (typeof bindTabs === "function") bindTabs();
+
+  const btnEditFormName = document.getElementById("btnEditFormName");
+
+if (btnEditFormName) {
+  btnEditFormName.onclick = async () => {
+    const current = state.form?.name || "";
+    const next = prompt("اكتبي اسم النموذج:", current);
+    if (!next || !next.trim()) return;
+
+    // لازم API لتحديث اسم النموذج (انظري الملاحظة تحت)
+    await api("/api/forms-update", "POST", { id: state.form_id, updates: { name: next.trim() } });
+
+    await loadAll();
+    renderAll();
+    setToast("تم تحديث الاسم ✅");
+  };
+}
+
 }
 
 init().catch((e) => { console.error(e); alert("خطأ: " + (e.message || e)); });
