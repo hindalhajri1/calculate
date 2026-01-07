@@ -433,6 +433,65 @@ async function init() {
   const btnPreview  = document.getElementById("btnPreview");
   const btnCopyLink = document.getElementById("btnCopyLink");
   const btnStats    = document.getElementById("btnStats");
+  const btnEditFormName = document.getElementById("btnEditFormName");
+const modal = document.getElementById("nameModal");
+const nameInput = document.getElementById("nameInput");
+const nameCancel = document.getElementById("nameCancel");
+const nameSave = document.getElementById("nameSave");
+const nameHint = document.getElementById("nameHint");
+
+function openNameModal(){
+  if(!modal || !nameInput) return;
+  nameInput.value = state.form?.name || "";
+  if (nameHint){ nameHint.style.display="none"; nameHint.textContent=""; }
+  modal.style.display = "flex";
+  setTimeout(()=> nameInput.focus(), 50);
+}
+function closeNameModal(){
+  if(!modal) return;
+  modal.style.display = "none";
+}
+
+if (btnEditFormName) btnEditFormName.onclick = openNameModal;
+if (nameCancel) nameCancel.onclick = closeNameModal;
+if (modal) modal.addEventListener("click", (e)=>{ if(e.target === modal) closeNameModal(); });
+
+if (nameSave) {
+  nameSave.onclick = async () => {
+    const next = (nameInput?.value || "").trim();
+    if (!next) return;
+
+    try {
+      // 1) نرسل تحديث الاسم
+      const r = await api("/api/forms-update", "POST", { id: state.form_id, updates: { name: next } });
+
+      // 2) تحديث فوري بالواجهة حتى لو تأخر loadAll
+      if (!state.form) state.form = {};
+      state.form.name = next;
+
+      const formTitle = document.getElementById("formTitle");
+      const formName  = document.getElementById("formName");
+      if (formTitle) formTitle.textContent = next;
+      if (formName)  formName.textContent = next;
+
+      // 3) إعادة تحميل للتأكد
+      await loadAll();
+      renderAll();
+
+      setToast("تم حفظ الاسم ✅");
+      closeNameModal();
+    } catch (e) {
+      console.error(e);
+      if (nameHint){
+        nameHint.style.display="block";
+        nameHint.textContent = "تعذر حفظ الاسم. تأكدي من API forms-update.";
+      } else {
+        alert("تعذر حفظ الاسم: " + (e.message || e));
+      }
+    }
+  };
+}
+
 
   if (btnReload) {
     btnReload.onclick = async () => { await loadAll(); renderAll(); };
@@ -457,9 +516,13 @@ async function init() {
         ta.select();
         document.execCommand("copy");
         ta.remove();
-        setToast("تم نسخ الرابط ✅");
+        const old = btnCopyLink.textContent;
+        btnCopyLink.textContent = "تم النسخ ✅";
+        setTimeout(()=> btnCopyLink.textContent = old, 900);
+        
       }
     };
+   
   }
 
   // عرض/إخفاء الإحصائيات (UI فقط)
