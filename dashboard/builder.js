@@ -253,25 +253,26 @@ function renderCanvas() {
     el.style.background = selected ? "#f5f8ff" : "#fff";
 
     el.innerHTML = `
-      <div class="field-meta" style="flex:1;">
-        <input data-edit-label value="${esc(f.label)}"
-          style="font-weight:800;border:1px solid #dfe3ee;padding:10px;border-radius:10px;background:#fff;" />
-
-        <div class="small muted" style="margin-top:6px;">
-  <span class="tag">${esc(f.field_type)}</span>
-</div>
-
-
-        <div class="row" style="margin-top:10px; justify-content:space-between;">
-          <label style="margin:0;display:flex;gap:8px;align-items:center;">
-            <input type="checkbox" data-required ${Number(f.required) === 1 ? "checked" : ""} style="width:auto;" />
-            <span class="small">مطلوب</span>
-          </label>
-
-          <span class="small muted" style="cursor:grab;">⋮⋮</span>
-        </div>
-
-        ${renderOptionsEditor(f, opt)}
+    <div class="field-head">
+      <div style="font-weight:900;">${esc(f.label)}</div>
+      <button class="xbtn" type="button" data-del title="حذف">×</button>
+    </div>
+  
+    <div class="divider"></div>
+  
+    <label>العنوان</label>
+    <input data-edit-label value="${esc(f.label)}" />
+  
+    <div class="row" style="margin-top:10px; justify-content:space-between;">
+      <label style="margin:0;display:flex;gap:8px;align-items:center;">
+        <input type="checkbox" data-required ${Number(f.required) === 1 ? "checked" : ""} style="width:auto;" />
+        <span class="small">مطلوب</span>
+      </label>
+      <span class="tag">${esc(f.field_type)}</span>
+    </div>
+  
+    ${renderOptionsEditor(f, opt)}
+  
       </div>
 <div class="field-head">
   <div style="font-weight:900;">${esc(f.label)}</div>
@@ -347,14 +348,21 @@ function renderCanvas() {
     }
 
     // delete
-    el.querySelector("[data-del]").onclick = async (ev) => {
-      ev.stopPropagation();
-      if (!confirm("تأكيد حذف الحقل نهائيًا؟")) return;
-      await api("/api/fields-delete", "POST", { id: f.id });
-      if (state.selectedId === f.id) state.selectedId = null;
-      await loadAll();
-      renderAll();
-    };
+    // delete (آمن)
+const delBtn = el.querySelector("[data-del]");
+if (delBtn) {
+  delBtn.addEventListener("click", async (ev) => {
+    ev.stopPropagation();
+    if (!confirm("تأكيد حذف الحقل نهائيًا؟")) return;
+    await api("/api/fields-delete", "POST", { id: f.id });
+    if (state.selectedId === f.id) state.selectedId = null;
+    await loadAll();
+    renderAll();
+  });
+} else {
+  console.warn("delete button not found for field", f.id);
+}
+
 
     // Drag reorder (محلي + autosave)
     el.addEventListener("dragstart", () => { state.draggingId = f.id; el.classList.add("dragging"); });
@@ -420,20 +428,19 @@ function renderProps() {
     <button class="btn primary" type="button" id="p_save">حفظ التعديلات</button>
   `;
 
-  $("#p_save").onclick = async () => {
-    const newLabel = $("#p_label").value.trim();
-    const newPh = $("#p_ph").value || "";
-    const newType = $("#p_type").value;
-
-    await updateField(f.id, {
-      label: newLabel,
-      placeholder: newPh,
-      type: newType,
-    });
-
-    await loadAll();
-    renderAll();
-  };
+  const pSave = document.getElementById("p_save");
+  if (pSave) {
+    pSave.onclick = async () => {
+      const newLabel = document.getElementById("p_label")?.value?.trim() || "";
+      const newPh = document.getElementById("p_ph")?.value || "";
+      const newType = document.getElementById("p_type")?.value || "";
+  
+      await updateField(f.id, { label: newLabel, placeholder: newPh, type: newType });
+      await loadAll();
+      renderAll();
+    };
+  }
+  
 }
 
 /* ---------------- Load ---------------- */
@@ -545,9 +552,4 @@ async function init() {
 }
 
 init().catch((e) => { console.error(e); alert("خطأ: " + (e.message || e)); });
-
-
-init().catch((e) => { console.error(e); alert("خطأ: " + (e.message || e)); });
-
-
 
