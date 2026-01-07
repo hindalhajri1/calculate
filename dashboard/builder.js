@@ -126,32 +126,32 @@ async function addFieldFromTemplate(tpl) {
 
 function renderLibrary() {
   const root = document.getElementById("library");
-  root.innerHTML = "";
-
   const search = document.getElementById("libSearch");
   const q = (search?.value || "").trim();
 
-  const items = libraryItems().filter(x =>
-    !q || x.label.includes(q) || x.type.includes(q)
-  );
+  root.innerHTML = "";
 
-  // group
+  const items = libraryItems().filter(x => {
+    if(!q) return true;
+    return String(x.label).includes(q) || String(x.type).includes(q);
+  });
+
   const groups = {};
-  items.forEach(it => {
+  items.forEach(it=>{
     groups[it.group] = groups[it.group] || [];
     groups[it.group].push(it);
   });
 
-  Object.keys(groups).forEach((g) => {
+  Object.keys(groups).forEach(g=>{
     const h = document.createElement("div");
     h.className = "small muted";
     h.style.margin = "8px 0 6px";
     h.textContent = g;
     root.appendChild(h);
 
-    groups[g].forEach((it) => {
+    groups[g].forEach(it=>{
       const btn = document.createElement("button");
-      btn.className = "btn lib-item";
+      btn.className = "lib-item";
       btn.type = "button";
       btn.textContent = `+ ${it.label}`;
       btn.onclick = () => addFieldFromTemplate(it);
@@ -159,12 +159,13 @@ function renderLibrary() {
     });
   });
 
-  const hint = document.createElement("div");
-  hint.className = "small muted";
-  hint.style.marginTop = "10px";
-  hint.textContent = "اضغطي + لإضافة سؤال مباشرة، ثم عدّلي العنوان/الخصائص.";
-  root.appendChild(hint);
+  // اربطي البحث مرة وحدة فقط
+  if (search && !search.dataset.bound) {
+    search.dataset.bound = "1";
+    search.addEventListener("input", () => renderLibrary());
+  }
 }
+
 
 
 /* ---------------- Update Helpers ---------------- */
@@ -460,8 +461,8 @@ function renderAll() {
   renderLibrary();
   renderCanvas();
   renderProps();
-  syncMobile();
 }
+
 
 
 async function init() {

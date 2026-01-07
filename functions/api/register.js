@@ -68,14 +68,13 @@ export async function onRequestPost({ request, env }) {
     const now = new Date().toISOString();
     const data_json = JSON.stringify(data);
 
+
     // نحاول نخزن الأعمدة الثابتة + data_json (لو الأعمدة موجودة)
     await env.DB.prepare(`
-      INSERT INTO requests (
-        created_at, form_id, name, mobile, city, count,
-        status, token, data_json
-      )
-      VALUES (?, ?, ?, ?, ?, ?, 'Registered', ?, ?)
-    `).bind(now, formId, name, mobile, city, count, token, data_json).run();
+      INSERT INTO requests (created_at, form_id, status, token, data_json)
+      VALUES (?, ?, 'Registered', ?, ?)
+    `).bind(now, formId, token, data_json).run();
+    
     
 
     // رابط التأكيد (صفحتك confirm.html)
