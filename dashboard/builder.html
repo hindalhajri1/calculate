@@ -154,6 +154,21 @@
       .tabs{display:block;}
       .page{padding:12px}
     }
+
+    .field-item{ position:relative; }
+.delx{
+  position:absolute;
+  left:10px;
+  top:10px;
+  width:34px;height:34px;
+  border-radius:12px;
+  border:1px solid rgba(17,24,39,.12);
+  background:#fff;
+  cursor:pointer;
+  font-weight:900;
+}
+.delx:hover{ border-color:#fecaca; color:#991b1b; }
+
   </style>
 </head>
 
@@ -166,9 +181,11 @@
         <div class="meta" id="formTitle">...</div>
       </div>
       <div class="top-actions">
-        <button class="btn" id="btnReload" type="button">تحديث</button>
+        <button class="btn" id="btnCopyPublic" type="button">نسخ رابط النموذج</button>
         <button class="btn dark" id="btnPreview" type="button">معاينة النموذج</button>
+        <button class="btn" id="btnReload" type="button" style="display:none">تحديث</button>
       </div>
+      
     </header>
 
     <div class="grid">
@@ -208,12 +225,13 @@
       </section>
     </div>
 
-    <div class="tabs" id="mobileTabs">
-      <div class="bar">
+    <div class="bar">
         <button class="tabbtn active" data-tab="tabCanvas" type="button">النموذج</button>
         <button class="tabbtn" data-tab="tabLibrary" type="button">الحقول</button>
         <button class="tabbtn" data-tab="tabProps" type="button">الخصائص</button>
+        <button class="tabbtn" data-tab="tabStats" type="button">الإحصائيات</button>
       </div>
+      
 
       <div class="tabpane active" id="tabCanvas">
         <div class="row" style="justify-content:space-between;gap:10px">
@@ -229,7 +247,16 @@
         <div class="divider"></div>
         <div id="mLibrary"></div>
       </div>
-
+      <div class="tabpane" id="tabStats">
+        <div class="pill" style="margin-bottom:10px;">ملخص</div>
+      
+        <div class="card" style="box-shadow:none;border-radius:16px;border:1px solid rgba(17,24,39,.08);">
+          <div class="bd">
+            <div id="statsBox" class="small muted">قريبًا سيتم عرض إحصائيات الطلبات هنا.</div>
+          </div>
+        </div>
+      </div>
+      
       <div class="tabpane" id="tabProps">
         <div id="mProps" class="small muted">اختاري حقلًا من النموذج.</div>
       </div>

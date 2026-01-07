@@ -168,6 +168,7 @@ function renderLibrary() {
 
 
 
+
 /* ---------------- Update Helpers ---------------- */
 
 async function updateField(id, updates) {
@@ -273,9 +274,10 @@ function renderCanvas() {
         ${renderOptionsEditor(f, opt)}
       </div>
 
-      <div class="row" style="align-items:flex-start;">
-        <button class="btn danger" type="button" data-del>حذف</button>
-      </div>
+     <button class="delx" type="button" data-del aria-label="حذف">×</button>
+  <div class="field-meta" style="flex:1;">
+    ...
+  </div>
     `;
 
     // select field card
@@ -464,7 +466,6 @@ function renderAll() {
 }
 
 
-
 async function init() {
   state.form_id = getFormId();
   if (!state.form_id) { alert("لازم form_id في الرابط"); return; }
@@ -498,3 +499,14 @@ async function init() {
 }
 
 init().catch((e) => { console.error(e); alert("خطأ: " + (e.message || e)); });
+document.getElementById("btnCopyPublic")?.addEventListener("click", async ()=>{
+  const publicUrl = `${location.origin}/?form_id=${encodeURIComponent(state.form_id)}`;
+
+  try{
+    await navigator.clipboard.writeText(publicUrl);
+    setToast("تم نسخ الرابط ✅");
+  }catch{
+    // fallback إذا المتصفح منع النسخ
+    prompt("انسخي الرابط:", publicUrl);
+  }
+});
