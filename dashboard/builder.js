@@ -428,81 +428,73 @@ async function init() {
   state.form_id = getFormId();
   if (!state.form_id) { alert("لازم form_id في الرابط"); return; }
 
-  // ✅ مهم: لا تربطين إلا إذا العنصر موجود
+  // عناصر الأزرار
   const btnReload   = document.getElementById("btnReload");
   const btnPreview  = document.getElementById("btnPreview");
   const btnCopyLink = document.getElementById("btnCopyLink");
-  const btnStats    = document.getElementById("btnStats");
   const btnEditFormName = document.getElementById("btnEditFormName");
-const modal = document.getElementById("nameModal");
-const nameInput = document.getElementById("nameInput");
-const nameCancel = document.getElementById("nameCancel");
-const nameSave = document.getElementById("nameSave");
-const nameHint = document.getElementById("nameHint");
 
-function openNameModal(){
-  if(!modal || !nameInput) return;
-  nameInput.value = state.form?.name || "";
-  if (nameHint){ nameHint.style.display="none"; nameHint.textContent=""; }
-  modal.style.display = "flex";
-  setTimeout(()=> nameInput.focus(), 50);
-}
-function closeNameModal(){
-  if(!modal) return;
-  modal.style.display = "none";
-}
+  // عناصر المودال
+  const modal = document.getElementById("nameModal");
+  const nameInput = document.getElementById("nameInput");
+  const nameCancel = document.getElementById("nameCancel");
+  const nameSave = document.getElementById("nameSave");
+  const nameHint = document.getElementById("nameHint");
 
-if (btnEditFormName) btnEditFormName.onclick = openNameModal;
-if (nameCancel) nameCancel.onclick = closeNameModal;
-if (modal) modal.addEventListener("click", (e)=>{ if(e.target === modal) closeNameModal(); });
-
-if (nameSave) {
-  nameSave.onclick = async () => {
-    const next = (nameInput?.value || "").trim();
-    if (!next) return;
-
-    try {
-      // 1) نرسل تحديث الاسم
-      const r = await api("/api/forms-update", "POST", { id: state.form_id, updates: { name: next } });
-
-      // 2) تحديث فوري بالواجهة حتى لو تأخر loadAll
-      if (!state.form) state.form = {};
-      state.form.name = next;
-
-      const formTitle = document.getElementById("formTitle");
-      const formName  = document.getElementById("formName");
-      if (formTitle) formTitle.textContent = next;
-      if (formName)  formName.textContent = next;
-
-      // 3) إعادة تحميل للتأكد
-      await loadAll();
-      renderAll();
-
-      setToast("تم حفظ الاسم ✅");
-      closeNameModal();
-    } catch (e) {
-      console.error(e);
-      if (nameHint){
-        nameHint.style.display="block";
-        nameHint.textContent = "تعذر حفظ الاسم. تأكدي من API forms-update.";
-      } else {
-        alert("تعذر حفظ الاسم: " + (e.message || e));
-      }
-    }
-  };
-}
-
-
-  if (btnReload) {
-    btnReload.onclick = async () => { await loadAll(); renderAll(); };
+  function openNameModal(){
+    if(!modal || !nameInput) return;
+    nameInput.value = state.form?.name || "";
+    if (nameHint){ nameHint.style.display="none"; nameHint.textContent=""; }
+    modal.style.display = "flex";
+    setTimeout(()=> nameInput.focus(), 50);
+  }
+  function closeNameModal(){
+    if(!modal) return;
+    modal.style.display = "none";
   }
 
-  if (btnPreview) {
-    btnPreview.onclick = () => {
-      window.open(`/?form_id=${encodeURIComponent(state.form_id)}`, "_blank");
+  // ربط تعديل الاسم (مودال)
+  if (btnEditFormName) btnEditFormName.onclick = openNameModal;
+  if (nameCancel) nameCancel.onclick = closeNameModal;
+  if (modal) modal.addEventListener("click", (e)=>{ if(e.target === modal) closeNameModal(); });
+
+  // حفظ الاسم
+  if (nameSave) {
+    nameSave.onclick = async () => {
+      const next = (nameInput?.value || "").trim();
+      if (!next) return;
+
+      try {
+        await api("/api/forms-update", "POST", { id: state.form_id, updates: { name: next } });
+
+        // تحديث فوري بالواجهة
+        if (!state.form) state.form = {};
+        state.form.name = next;
+
+        await loadAll();
+        renderAll();
+
+        setToast("تم حفظ الاسم ✅");
+        closeNameModal();
+      } catch (e) {
+        console.error(e);
+        if (nameHint){
+          nameHint.style.display="block";
+          nameHint.textContent = "تعذر حفظ الاسم. تأكدي من API forms-update.";
+        } else {
+          alert("تعذر حفظ الاسم: " + (e.message || e));
+        }
+      }
     };
   }
 
+  // تحديث
+  if (btnReload) btnReload.onclick = async () => { await loadAll(); renderAll(); };
+
+  // معاينة
+  if (btnPreview) btnPreview.onclick = () => window.open(`/?form_id=${encodeURIComponent(state.form_id)}`, "_blank");
+
+  // نسخ الرابط
   if (btnCopyLink) {
     btnCopyLink.onclick = async () => {
       const url = `${location.origin}/?form_id=${encodeURIComponent(state.form_id)}`;
@@ -516,83 +508,43 @@ if (nameSave) {
         ta.select();
         document.execCommand("copy");
         ta.remove();
-        const old = btnCopyLink.textContent;
-        btnCopyLink.textContent = "تم النسخ ✅";
-        setTimeout(()=> btnCopyLink.textContent = old, 900);
-        
+        setToast("تم نسخ الرابط ✅");
       }
     };
-   
   }
 
-  // عرض/إخفاء الإحصائيات (UI فقط)
-  const editorGrid = document.getElementById("editorGrid");
-  const statsView  = document.getElementById("statsView");
-  let statsOpen = false;
-
-  function showEditor() {
-    if (editorGrid) editorGrid.style.display = "";
-    if (statsView) statsView.style.display = "none";
-    statsOpen = false;
-  }
-  function showStats() {
-    if (editorGrid) editorGrid.style.display = "none";
-    if (statsView) statsView.style.display = "";
-    const statsMeta = document.getElementById("statsMeta");
-    if (statsMeta) statsMeta.textContent = `ID: ${state.form_id}`;
-    statsOpen = true;
-  }
-
+  // تبويبات أعلى (builder/stats)
   function setView(view){
     const editorGrid = document.getElementById("editorGrid");
     const statsView  = document.getElementById("statsView");
-  
+
     document.querySelectorAll(".tabTop").forEach(b=>{
       b.classList.toggle("active", b.dataset.view === view);
     });
-  
+
     if (editorGrid) editorGrid.style.display = (view === "builder") ? "" : "none";
     if (statsView)  statsView.style.display  = (view === "stats") ? "" : "none";
-  
+
     if (view === "stats") {
       const statsMeta = document.getElementById("statsMeta");
       if (statsMeta) statsMeta.textContent = state.form?.name || "إحصائيات";
     }
   }
-  
+
   document.querySelectorAll(".tabTop").forEach(btn=>{
     btn.addEventListener("click", ()=> setView(btn.dataset.view));
   });
-  
-  // افتراضي
-  setView("builder");
-  
 
-  // ✅ تحميل البيانات ثم رسم الواجهة
+  // تحميل البيانات ثم رسم الواجهة
   await loadAll();
   renderAll();
 
-  // لو عندك تبويبات موبايل وتستخدمين bindTabs
+  // الافتراضي بعد التحميل
+  setView("builder");
+
   if (typeof bindTabs === "function") bindTabs();
-
-  const btnEditFormName = document.getElementById("btnEditFormName");
-
-if (btnEditFormName) {
-  btnEditFormName.onclick = async () => {
-    const current = state.form?.name || "";
-    const next = prompt("اكتبي اسم النموذج:", current);
-    if (!next || !next.trim()) return;
-
-    // لازم API لتحديث اسم النموذج (انظري الملاحظة تحت)
-    await api("/api/forms-update", "POST", { id: state.form_id, updates: { name: next.trim() } });
-
-    await loadAll();
-    renderAll();
-    setToast("تم تحديث الاسم ✅");
-  };
 }
 
-}
 
 init().catch((e) => { console.error(e); alert("خطأ: " + (e.message || e)); });
 
