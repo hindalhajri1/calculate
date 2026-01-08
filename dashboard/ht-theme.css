@@ -448,3 +448,25 @@ html[data-theme="dark"] .ht-lang-pill{
 .ht-lang input:checked + .ht-lang-track .ht-lang-thumb{
   transform: translateX(-38px); /* checked = EN */
 }
+/* ✅ Fix: moon visible on dark */
+html[data-theme="dark"] .ht-moon{
+    color: rgba(234,242,255,.95);
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,.45));
+  }
+  
+  html[data-theme="dark"] .ht-track{
+    background: rgba(12,17,24,.65);
+  }
+  /* ✅ Fix: spacing not glued to edges */
+.container{
+    max-width:1100px;
+    margin:24px auto;
+    padding:0 16px;                 /* مسافة يمين/يسار */
+  }
+  
+  /* نفس إحساس التصميم السابق */
+  .topbar{
+    margin:16px 0;                  /* يفصل عن أعلى الصفحة */
+    border-radius:22px;
+  }
+  
