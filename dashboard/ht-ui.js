@@ -56,3 +56,36 @@
     document.documentElement.setAttribute("data-theme", savedTheme);
   }
   
+  (function(){
+    const root = document.documentElement;
+    const key = "ht_theme";
+  
+    function applyTheme(t){
+      if(t === "dark") root.setAttribute("data-theme","dark");
+      else root.removeAttribute("data-theme");
+    }
+  
+    // init from storage
+    const saved = localStorage.getItem(key);
+    applyTheme(saved);
+  
+    // sync checkbox (لو موجود)
+    const themeInput = document.querySelector('[data-toggle-theme]');
+    if(themeInput && themeInput.type === "checkbox"){
+      themeInput.checked = (saved === "dark");
+      themeInput.addEventListener("change", () => {
+        const next = themeInput.checked ? "dark" : "light";
+        localStorage.setItem(key, next);
+        applyTheme(next);
+      });
+    } else if(themeInput){
+      // fallback لو زر قديم
+      themeInput.addEventListener("click", () => {
+        const isDark = root.getAttribute("data-theme") === "dark";
+        const next = isDark ? "light" : "dark";
+        localStorage.setItem(key, next);
+        applyTheme(next);
+      });
+    }
+  })();
+  

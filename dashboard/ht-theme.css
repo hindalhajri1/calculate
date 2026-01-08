@@ -399,4 +399,82 @@
     right:auto;
     background:#FFFFFF;
   }
+  /* ================================
+   Toggle Switch (Theme)
+================================ */
+.ht-switch{
+    display:inline-flex;
+    align-items:center;
+    cursor:pointer;
+    user-select:none;
+  }
+  
+  .ht-switch input{
+    position:absolute;
+    opacity:0;
+    width:1px;height:1px;
+  }
+  
+  .ht-track{
+    width:78px;
+    height:40px;
+    border-radius:999px;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 12px;
+    background: rgba(255,255,255,.22);
+    border: 1px solid rgba(255,255,255,.28);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 12px 24px rgba(0,0,0,.10);
+  }
+  
+  /* icons */
+  .ht-ic{
+    width:18px;
+    height:18px;
+    display:block;
+    color: rgba(0,16,24,.85);
+    opacity:.9;
+    pointer-events:none;
+  }
+  
+  html[data-theme="dark"] .ht-track{
+    background: rgba(12,17,24,.55);
+    border: 1px solid rgba(255,255,255,.12);
+    box-shadow: 0 18px 34px rgba(0,0,0,.35);
+  }
+  
+  html[data-theme="dark"] .ht-ic{
+    color: rgba(234,242,255,.85);
+  }
+  
+  /* thumb */
+  .ht-thumb{
+    position:absolute;
+    top:4px;
+    width:32px;
+    height:32px;
+    border-radius:999px;
+    background: rgba(255,255,255,.92);
+    box-shadow: 0 10px 18px rgba(0,0,0,.18);
+    transition: transform .22s ease;
+    /* RTL: يبدأ من اليمين */
+    right:4px;
+  }
+  
+  /* إذا صار Dark (checked) يتحرك يسار */
+  .ht-switch input:checked + .ht-track .ht-thumb{
+    transform: translateX(-38px);
+  }
+  
+  /* تحسين “نقرة” */
+  .ht-track:active .ht-thumb{
+    transform: scale(.98) translateX(0);
+  }
+  .ht-switch input:checked + .ht-track:active .ht-thumb{
+    transform: scale(.98) translateX(-38px);
+  }
   
