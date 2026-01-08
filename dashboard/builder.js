@@ -422,7 +422,7 @@ function renderAll() {
   renderProps();
 }
 
-
+/*
 function showBubbleOver(el, msg){
   const b = document.getElementById("copyBubble");
   if(!b || !el) return;
@@ -439,7 +439,7 @@ function showBubbleOver(el, msg){
   clearTimeout(b._t);
   b._t = setTimeout(()=> b.classList.remove("show"), 900);
 }
-
+*/
 async function init() {
   state.form_id = getFormId();
   if (!state.form_id) { alert("لازم form_id في الرابط"); return; }
