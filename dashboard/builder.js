@@ -422,7 +422,6 @@ function renderAll() {
   renderProps();
 }
 
-/*
 function showBubbleOver(el, msg){
   const b = document.getElementById("copyBubble");
   if(!b || !el) return;
@@ -432,14 +431,14 @@ function showBubbleOver(el, msg){
 
   // فوق الزر مباشرة
   b.style.left = (r.left + r.width/2) + "px";
-  b.style.top  = (r.top - 10) + "px";
+  b.style.top  = (r.top - 8) + "px";
   b.style.transform = "translate(-50%, -100%)";
 
   b.classList.add("show");
   clearTimeout(b._t);
   b._t = setTimeout(()=> b.classList.remove("show"), 900);
 }
-*/
+
 async function init() {
   state.form_id = getFormId();
   if (!state.form_id) { alert("لازم form_id في الرابط"); return; }
@@ -528,6 +527,7 @@ async function init() {
       }
     };
   }
+  
   
 
   // تبويبات أعلى (builder/stats)
