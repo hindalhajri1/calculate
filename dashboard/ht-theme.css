@@ -316,4 +316,87 @@
   html[data-theme="dark"] .theme-toggle .knob{
     left:30px;
   }
+  /* ===== HindTech Theme Switch (مثل الصورة) ===== */
+.ht-theme-switch{
+    direction:ltr;                 /* مهم حتى داخل RTL */
+    position:relative;
+    width:86px;
+    height:40px;
+    border-radius:999px;
+    border:1px solid rgba(0,0,0,.10);
+    background:#EEF1F5;            /* Light track */
+    cursor:pointer;
+    padding:0;
+    display:inline-block;
+    box-shadow: 0 12px 26px rgba(0,0,0,.10);
+    overflow:hidden;
+  }
+  
+  html[data-theme="dark"] .ht-theme-switch{
+    background:#1C1F25;            /* Dark track */
+    border-color: rgba(255,255,255,.10);
+    box-shadow: 0 18px 34px rgba(0,0,0,.55);
+  }
+  
+  .ht-theme-switch .ht-theme-icon{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    width:26px;
+    height:26px;
+    display:grid;
+    place-items:center;
+    opacity:.85;
+  }
+  
+  .ht-theme-switch .ht-theme-icon svg{
+    width:22px;
+    height:22px;
+    stroke:currentColor;
+    fill:none;
+    stroke-width:1.8;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  
+  /* الشمس يسار في Light */
+  .ht-theme-switch .ht-theme-icon.sun{
+    left:14px;
+    color:#0B1220;
+  }
+  
+  /* القمر يمين في Dark */
+  .ht-theme-switch .ht-theme-icon.moon{
+    right:14px;
+    color:#EAF2FF;
+  }
+  
+  /* إبراز الأيقونة حسب الثيم */
+  html:not([data-theme="dark"]) .ht-theme-icon.moon{ opacity:.0; }
+  html[data-theme="dark"] .ht-theme-icon.sun{ opacity:.0; }
+  
+  .ht-theme-knob{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    width:34px;
+    height:34px;
+    border-radius:999px;
+    transition: left .22s ease, right .22s ease, background .22s ease;
+    box-shadow: 0 10px 18px rgba(0,0,0,.25);
+  }
+  
+  /* Light: الدائرة يمين ولونها غامق */
+  html:not([data-theme="dark"]) .ht-theme-knob{
+    right:4px;
+    left:auto;
+    background:#2B2F36;
+  }
+  
+  /* Dark: الدائرة يسار ولونها أبيض */
+  html[data-theme="dark"] .ht-theme-knob{
+    left:4px;
+    right:auto;
+    background:#FFFFFF;
+  }
   

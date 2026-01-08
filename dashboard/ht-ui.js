@@ -18,26 +18,26 @@
         window.HT_I18N.render(l);
       }
     }
-  
-    function boot(){
-      const savedTheme = localStorage.getItem(THEME_KEY) || "dark";
-      const savedLang  = localStorage.getItem(LANG_KEY)  || "ar";
-      applyTheme(savedTheme);
-      applyLang(savedLang);
-  
-      // Bind toggles if exist
-      const tbtn = document.querySelector("[data-toggle-theme]");
-      if (tbtn) tbtn.addEventListener("click", ()=>{
-        const cur = document.documentElement.getAttribute("data-theme");
-        applyTheme(cur === "dark" ? "light" : "dark");
-      });
-  
-      const lbtn = document.querySelector("[data-toggle-lang]");
-      if (lbtn) lbtn.addEventListener("click", ()=>{
-        const cur = document.documentElement.lang || "ar";
-        applyLang(cur === "ar" ? "en" : "ar");
-      });
-    }
+    (function(){
+        const html = document.documentElement;
+      
+        function setTheme(next){
+          html.setAttribute("data-theme", next);
+          localStorage.setItem("theme", next);
+        }
+      
+        // load on start
+        const saved = localStorage.getItem("theme");
+        if(saved) setTheme(saved);
+      
+        document.querySelectorAll("[data-toggle-theme]").forEach(btn=>{
+          btn.addEventListener("click", ()=>{
+            const current = html.getAttribute("data-theme") === "dark" ? "dark" : "light";
+            setTheme(current === "dark" ? "light" : "dark");
+          });
+        });
+      })();
+      
   
     document.addEventListener("DOMContentLoaded", boot);
   })();
