@@ -41,4 +41,18 @@
   
     document.addEventListener("DOMContentLoaded", boot);
   })();
+  document.querySelectorAll("[data-toggle-theme]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const html = document.documentElement;
+      const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      html.setAttribute("data-theme", next);
+      localStorage.setItem("theme", next);
+    });
+  });
+  
+  // load saved theme
+  const savedTheme = localStorage.getItem("theme");
+  if(savedTheme){
+    document.documentElement.setAttribute("data-theme", savedTheme);
+  }
   
