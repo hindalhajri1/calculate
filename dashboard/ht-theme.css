@@ -1,0 +1,279 @@
+/* ================================
+   HindTech Design System (Clean)
+================================ */
+
+/* Tokens */
+:root{
+    --brand:#19E6C1;
+    --brand2:#00C2FF;
+  
+    --bg:#F7FAFF;
+    --card:#FFFFFF;
+    --text:#0B1220;
+    --muted:#667085;
+    --border:rgba(12,17,24,.10);
+  
+    --radius:18px;
+    --shadow:0 14px 28px rgba(0,0,0,.08);
+  }
+  
+  /* 🌙 Dark Mode */
+  html[data-theme="dark"]{
+    --bg:#05070A;
+    --card:#0C1118;
+    --text:#EAF2FF;
+    --muted:rgba(234,242,255,.65);
+    --border:rgba(255,255,255,.10);
+    --shadow:0 20px 40px rgba(0,0,0,.45);
+  }
+  
+  /* Reset */
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Tajawal,system-ui;
+    background:var(--bg);
+    color:var(--text);
+  }
+  
+  /* Layout */
+  .container{
+    max-width:1100px;
+    margin:24px auto;
+    padding:0 16px;
+  }
+  
+  /* Base components */
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+  
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 14px;
+    border-radius:999px;
+    font-weight:900;
+    border:1px solid var(--border);
+    background:var(--card);
+    color:var(--text);
+    cursor:pointer;
+    transition: transform .08s ease, filter .08s ease;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn[disabled]{opacity:.6; cursor:not-allowed}
+  
+  .btn.primary{
+    background:linear-gradient(135deg,var(--brand),var(--brand2));
+    color:#001018;
+    border:0;
+  }
+  .btn.ghost{ background:transparent; }
+  
+  .btn.danger{
+    border-color: rgba(239,68,68,.25);
+    color:#b91c1c;
+    background: rgba(239,68,68,.06);
+  }
+  html[data-theme="dark"] .btn.danger{
+    color:#ffb4b4;
+    background: rgba(239,68,68,.12);
+  }
+  
+  .btn svg{
+    width:18px;
+    height:18px;
+    display:inline-block;
+    vertical-align:middle;
+    fill: currentColor;
+    stroke:none;
+    opacity:.95;
+  }
+  
+  .icon{
+    width:18px;
+    height:18px;
+    stroke:currentColor;
+    fill:none;
+  }
+  
+  .muted{color:var(--muted)}
+  
+  /* ================================
+     Dashboard (Forms list)
+  ================================ */
+  
+  /* Topbar */
+  .topbar{
+    background: linear-gradient(135deg, var(--brand), var(--brand2));
+    color:#001018;
+    border-radius:22px;
+    padding:18px;
+    box-shadow:var(--shadow);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .topbar h1{margin:0;font-size:22px;font-weight:900}
+  .topbar .meta{margin-top:6px;font-size:13px;font-weight:700;opacity:.9}
+  
+  /* Pill */
+  .pill{
+    background: rgba(255,255,255,.22);
+    border: 1px solid rgba(255,255,255,.26);
+    color:#001018;
+    border-radius:999px;
+    padding:8px 12px;
+    font-weight:900;
+    font-size:13px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    white-space:nowrap;
+  }
+  
+  /* Section */
+  .section-title{
+    margin:18px 0 10px;
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .section-title h2{margin:0;font-size:16px;font-weight:900;color:var(--text)}
+  .section-title .sub{font-size:13px;color:var(--muted);font-weight:700}
+  
+  /* Grid */
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap:12px;
+  }
+  
+  /* Cards */
+  .form-card{
+    grid-column: span 4;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding:14px;
+    box-shadow: 0 10px 22px rgba(0,0,0,.06);
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    min-height:140px;
+    cursor:pointer;
+    transition: transform .08s ease, filter .08s ease;
+  }
+  html[data-theme="dark"] .form-card{
+    box-shadow: 0 18px 34px rgba(0,0,0,.35);
+  }
+  .form-card:hover{filter:brightness(.995)}
+  .form-title{font-weight:900;font-size:15px}
+  .form-slug{color:var(--muted);font-size:12px;direction:ltr;text-align:left}
+  
+  /* Create card */
+  .create-card{
+    border-style:dashed;
+    border-color: rgba(25,230,193,.35);
+    background: linear-gradient(180deg, rgba(25,230,193,.10), rgba(0,194,255,.06));
+    align-items:flex-start;
+  }
+  .create-icon{
+    width:50px;height:50px;border-radius:16px;
+    display:grid;place-items:center;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size:28px;
+    font-weight:900;
+  }
+  .create-hint{
+    color:var(--muted);
+    font-size:13px;
+    font-weight:700;
+    line-height:1.7
+  }
+  
+  .actions{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:auto;
+    cursor:default;
+  }
+  
+  /* Modals (لو عندك backdrop/modal بالصفحة) */
+  .backdrop{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.35);
+    display:none;
+    place-items:center;
+    padding:18px;
+    z-index:9999;
+  }
+  .modal{
+    width:min(520px,100%);
+    background:var(--card);
+    color:var(--text);
+    border-radius: var(--radius);
+    padding:16px;
+    border:1px solid var(--border);
+    box-shadow: 0 18px 44px rgba(0,0,0,.18);
+  }
+  .modal-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .xbtn{
+    border:1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    cursor:pointer;
+    font-size:18px;
+    line-height:1;
+    padding:8px 10px;
+    border-radius:12px;
+  }
+  .field input{
+    width:100%;
+    padding:12px;
+    border-radius:14px;
+    border:1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-family:inherit;
+    outline:none;
+  }
+  .field input:focus{
+    border-color: rgba(25,230,193,.55);
+    box-shadow: 0 0 0 4px rgba(25,230,193,.18);
+  }
+  .help{color:var(--muted);font-size:12px;font-weight:700}
+  .msg{
+    display:none;
+    margin-top:10px;
+    padding:10px;
+    border-radius:14px;
+    border:1px solid var(--border);
+    background: rgba(12,17,24,.03);
+    font-weight:900;
+  }
+  
+  /* Responsive */
+  @media (max-width: 980px){ .form-card{grid-column:span 6} }
+  @media (max-width: 640px){
+    .form-card{grid-column:span 12}
+    .topbar{flex-direction:column;align-items:flex-start}
+  }
+  
